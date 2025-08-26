@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Pose, POSE_CONNECTIONS } from "@mediapipe/pose";
 import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 // TypeScript declarations for OpenCV
 declare global {
@@ -526,9 +528,10 @@ export default function DrillTracker()
     
     video.src = url;
     
-    video.onended = () => {
-      showFinalAnalysis();
-    };
+          video.onended = () => {
+        cancelAnimationFrame(rafRef.current);
+        showFinalAnalysis();
+      };
     
     video.onloadeddata = () => {
       try { video.pause(); } catch {}
@@ -545,8 +548,10 @@ export default function DrillTracker()
   };
 
   const resetTracking = () => {
+    cancelAnimationFrame(rafRef.current);
     setSelectedPoints([]);
     setGridLines([]);
+    setIsSetupComplete(false);
     zoneCounterRef.current = Array.from({ length: rows }, () => Array(cols).fill(0));
     drillStateRef.current = "at_center_waiting_to_start";
     lastZoneRef.current = null;
@@ -567,6 +572,26 @@ export default function DrillTracker()
     });
     setShowFinalResults(false);
     setFinalAnalysis(null);
+    
+    // Reset video
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
+    
+    // Clear canvases
+    if (mainCanvasRef.current) {
+      const ctx = mainCanvasRef.current.getContext('2d');
+      ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
+    }
+    if (planeCanvasRef.current) {
+      const ctx = planeCanvasRef.current.getContext('2d');
+      ctx.clearRect(0, 0, courtWidth, courtHeight);
+    }
+    if (heatmapCanvasRef.current) {
+      const ctx = heatmapCanvasRef.current.getContext('2d');
+      ctx.clearRect(0, 0, 240, 240);
+    }
   };
 
   // --- Corner point selection ---
@@ -675,6 +700,9 @@ export default function DrillTracker()
   };
 
   const showFinalAnalysis = () => {
+    // Stop the animation loop
+    cancelAnimationFrame(rafRef.current);
+    
     const endTime = Date.now();
     const totalTime = startTimeRef.current ? (endTime - startTimeRef.current) / 1000 : 0;
     
@@ -727,12 +755,10 @@ export default function DrillTracker()
           <div className="container mx-auto px-4 py-3 sm:py-4">
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
               <a href="/" className="self-start">
-                <button className="text-muted-foreground hover:text-foreground p-2 rounded-lg hover:bg-secondary/50 transition-all duration-300">
-                  <svg className="w-4 h-4 mr-1 sm:mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
+                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground p-2">
+                  <ArrowLeft className="w-4 h-4 mr-1 sm:mr-2" />
                   <span className="text-xs sm:text-sm">Back to Home</span>
-                </button>
+                </Button>
               </a>
               <div className="flex items-center gap-2 sm:gap-3">
                 <div className="p-2 sm:p-2 rounded-lg bg-primary/20">

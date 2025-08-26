@@ -135,6 +135,26 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
+
+  /* Prevent white flash during navigation */
+  html, body {
+    background: hsl(222 47% 8%) !important;
+  }
+
+  /* Ensure all elements inherit the dark background */
+  #root {
+    background: hsl(222 47% 8%) !important;
+  }
+
+  /* Add purple flash effect during transitions */
+  * {
+    transition: background-color 0.1s ease;
+  }
+
+  /* Override any white backgrounds that might flash */
+  .bg-white, .bg-gray-50, .bg-gray-100, .bg-gray-200, .bg-gray-300, .bg-gray-400, .bg-gray-500 {
+    background-color: hsl(258 84% 60%) !important;
+  }
 }
 
 @layer components {
