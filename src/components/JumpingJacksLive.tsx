@@ -13,6 +13,33 @@ const JumpingJacks = () => {
     const [uploadedVideoUrl, setUploadedVideoUrl] = useState<string | null>(null);
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
+
+    // Load player data from sessionStorage
+    const getPlayerData = () => {
+        const savedDetails = sessionStorage.getItem('playerDetails');
+        if (savedDetails) {
+            try {
+                const details = JSON.parse(savedDetails);
+                return {
+                    name: details.name || "Player",
+                    age: parseInt(details.age) || 18,
+                    gender: details.gender || "Male",
+                    weight: parseInt(details.weight) || 65,
+                    height: parseInt(details.height) || 170
+                };
+            } catch (error) {
+                console.error('Error parsing player details:', error);
+            }
+        }
+        // Fallback to default data
+        return {
+            name: "Player",
+            age: 18,
+            gender: "Male",
+            weight: 65,
+            height: 170
+        };
+    };
     const [reps, setReps] = useState(0);
     const [status, setStatus] = useState("Waiting...");
     const [isWebcam, setIsWebcam] = useState(false);
@@ -243,12 +270,7 @@ const JumpingJacks = () => {
             //     stamina: avgScore > 0.7 ? "High" : "Low",
             //     calories: (0.1 * reps + 0.035 * totalTime).toFixed(2),
             // };
-            const user = {
-                name: "Adi",
-                age: 18,
-                gender: "Male",
-                weight: 65,
-            };
+            const user = getPlayerData();
             const staminaLevel = evaluateStamina(user.age, user.weight, repCountRef.current, totalTime, avgScore, pauseTime);
             const caloriesBurned = calculateCaloriesDynamic(repCountRef.current, totalTime, user.weight, user.age, user.gender, "jumping_jacks");
 
@@ -334,12 +356,7 @@ const JumpingJacks = () => {
                         const scores = poseScoresRef.current;
                         const avgScore = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
 
-                        const user = {
-                            name: "Adi",
-                            age: 18,
-                            gender: "Male",
-                            weight: 65,
-                        };
+                        const user = getPlayerData();
                         const staminaLevel = evaluateStamina(user.age, user.weight, repCountRef.current, totalTime, avgScore, pauseTime);
                         const caloriesBurned = calculateCaloriesDynamic(repCountRef.current, totalTime, user.weight, user.age, user.gender, "jumping_jacks");
 

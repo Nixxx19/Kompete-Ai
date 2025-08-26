@@ -15,15 +15,39 @@ const LiveCamera = () => {
   const mode = searchParams.get('mode'); // 'upload' or null for live camera
   const [uploadedVideoUrl, setUploadedVideoUrl] = useState<string | null>(null);
 
-  // Mock player data
-  const playerData = {
-    name: "Alex Johnson",
-    age: 28,
-    reps: 25,
-    stamina: 82,
-    calories: 156,
-    correctForm: 87
+  // Load player data from sessionStorage
+  const getPlayerData = () => {
+    const savedDetails = sessionStorage.getItem('playerDetails');
+    if (savedDetails) {
+      try {
+        const details = JSON.parse(savedDetails);
+        return {
+          name: details.name || "Player",
+          age: parseInt(details.age) || 25,
+          reps: 25,
+          stamina: 82,
+          calories: 156,
+          correctForm: 87,
+          height: details.height,
+          weight: details.weight,
+          gender: details.gender
+        };
+      } catch (error) {
+        console.error('Error parsing player details:', error);
+      }
+    }
+    // Fallback to default data
+    return {
+      name: "Player",
+      age: 25,
+      reps: 25,
+      stamina: 82,
+      calories: 156,
+      correctForm: 87
+    };
   };
+  
+  const playerData = getPlayerData();
 
   useEffect(() => {
     if (mode === 'upload') {

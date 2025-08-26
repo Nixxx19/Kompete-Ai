@@ -14,13 +14,34 @@ import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card.tsx
 import PerformanceInsights from "@/components/PerformanceInsights.tsx";
 
 
-const placeholderUser = {
-    name: "Guest",
-    age: 25,
-    weight: 70, // in kg
-    gender: "male",
-    height: "175cm"
+// Load player data from sessionStorage
+const getPlayerDataFromStorage = () => {
+    const savedDetails = sessionStorage.getItem('playerDetails');
+    if (savedDetails) {
+        try {
+            const details = JSON.parse(savedDetails);
+            return {
+                name: details.name || "Player",
+                age: parseInt(details.age) || 25,
+                gender: details.gender || "male",
+                weight: parseInt(details.weight) || 70,
+                height: details.height ? `${details.height}cm` : "175cm"
+            };
+        } catch (error) {
+            console.error('Error parsing player details:', error);
+        }
+    }
+    // Fallback to default data if no sessionStorage data
+    return {
+        name: "Player",
+        age: 25,
+        weight: 70,
+        gender: "male",
+        height: "175cm"
+    };
 };
+
+const placeholderUser = getPlayerDataFromStorage();
 export default function HighKnees({ user, onFinish }) {
     const activeUser = user ?? placeholderUser;
 
@@ -282,8 +303,11 @@ export default function HighKnees({ user, onFinish }) {
             if (idx >= 0 && idx < counts.length) counts[idx] += 1;
         });
 
+        // Get fresh player data from sessionStorage for accurate results
+        const currentPlayerData = getPlayerDataFromStorage();
+        
         const summaryObj = {
-            activeUser,
+            activeUser: currentPlayerData,
             total_reps: reps,
             total_duration: totalDuration,
             avg_pose_score: Number(avgPose.toFixed(2))*100,
