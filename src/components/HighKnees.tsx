@@ -9,7 +9,7 @@ import {Pose, POSE_CONNECTIONS} from "@mediapipe/pose";
 import {Camera} from "@mediapipe/camera_utils";
 import {Link} from "react-router-dom";
 import {Button} from "@/components/ui/button.tsx";
-import {ArrowLeft, Download, Trophy} from "lucide-react";
+import {ArrowLeft, Download, Trophy, Zap} from "lucide-react";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card.tsx";
 import PerformanceInsights from "@/components/PerformanceInsights.tsx";
 
@@ -44,6 +44,11 @@ const getPlayerDataFromStorage = () => {
 const placeholderUser = getPlayerDataFromStorage();
 export default function HighKnees({ user, onFinish }) {
     const activeUser = user ?? placeholderUser;
+
+    // Scroll to top when component mounts
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
@@ -417,6 +422,20 @@ export default function HighKnees({ user, onFinish }) {
         );
     }, [summary]);
 
+    // Auto-scroll to personalized plan when FRT rating is confirmed
+    useEffect(() => {
+        if (showPersonalizedPlan) {
+            // Find the personalized plan section and scroll to it
+            const personalizedPlanSection = document.querySelector('[data-testid="personalized-plan-section"]');
+            if (personalizedPlanSection) {
+                personalizedPlanSection.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+            }
+        }
+    }, [showPersonalizedPlan]);
+
     return (
         <><div className="min-h-screen bg-background overflow-hidden z-[-1]">
             <div className="relative z-10">
@@ -431,9 +450,14 @@ export default function HighKnees({ user, onFinish }) {
                                         Back to Exercise
                                     </Button>
                                 </Link>
-                                <div>
-                                    <h1 className="text-2xl font-bold text-foreground">High Knees Analysis</h1>
-                                    <p className="text-sm text-muted-foreground">Live camera analysis</p>
+                                <div className="flex items-center gap-3">
+                                    <div className="p-3 rounded-xl bg-purple-500/30 border border-purple-500/20">
+                                        <Zap className="w-8 h-8 text-purple-300" />
+                                    </div>
+                                    <div>
+                                        <h1 className="text-2xl font-bold text-foreground">High Knees Analysis</h1>
+                                        <p className="text-sm text-muted-foreground">Live camera analysis</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -465,7 +489,7 @@ export default function HighKnees({ user, onFinish }) {
                         </div>
                     )}
 
-                    <div style={{ marginLeft: "auto" }}>
+                    <div style={{ marginLeft: "auto" }} className="flex gap-4">
                         <button onClick={startSession} disabled={running}>
                             Start
                         </button>
@@ -699,7 +723,7 @@ export default function HighKnees({ user, onFinish }) {
 
                                 {/* Personalized Plan Button - appears after confirmation, outside the card */}
                                 {showPersonalizedPlan && (
-                                    <div className="mt-12 text-center">
+                                    <div className="mt-12 text-center" data-testid="personalized-plan-section">
                                         <Button
                                             className="w-full max-w-lg bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-600 hover:from-emerald-600 hover:via-green-600 hover:to-emerald-700 text-white font-bold py-6 px-10 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:scale-110 border-2 border-emerald-400/30 backdrop-blur-sm"
                                             onClick={handlePersonalizedPlan}

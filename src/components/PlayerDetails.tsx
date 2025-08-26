@@ -132,7 +132,7 @@ export const PlayerDetails = ({ onDetailsChange }: PlayerDetailsProps) => {
             <User className="w-8 h-8 text-primary" />
           </div>
           <div>
-            <h3 className="text-xl font-semibold text-foreground group-hover:text-primary transition-colors duration-300">
+            <h3 className="text-xl font-semibold text-foreground">
               Player Details
             </h3>
             <p className="text-sm text-muted-foreground">Enter your personal information</p>

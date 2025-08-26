@@ -81,7 +81,7 @@ const Exercise = () => {
                 <div className="absolute inset-0 bg-gradient-to-br from-accent/10 to-primary/5 rounded-lg" />
                 <div className="relative z-10">
                   <h3 className="text-sm sm:text-lg font-semibold text-foreground mb-3 sm:mb-4">Session Progress</h3>
-                  <div className="grid grid-cols-3 gap-1 sm:gap-4">
+                  <div className="grid grid-cols-2 gap-1 sm:gap-4">
                      <div className="text-center">
                        <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full mx-auto mb-1 sm:mb-2 flex items-center justify-center text-xs sm:text-sm font-medium transition-all duration-500 ${
                          playerDetails?.name ? 'bg-green-500/20 text-green-400 shadow-lg shadow-green-500/20' : 'bg-muted text-muted-foreground'
@@ -103,18 +103,6 @@ const Exercise = () => {
                        <p className="text-xs sm:text-sm font-medium">Exercise</p>
                        <p className="text-xs text-muted-foreground truncate px-1">
                          {selectedExercise ? selectedExercise.name : 'Pending'}
-                       </p>
-                     </div>
-                    
-                     <div className="text-center">
-                       <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full mx-auto mb-1 sm:mb-2 flex items-center justify-center text-xs sm:text-sm font-medium transition-all duration-500 ${
-                         videoUploaded ? 'bg-green-500/20 text-green-400 shadow-lg shadow-green-500/20' : 'bg-muted text-muted-foreground'
-                       }`}>
-                         {videoUploaded ? '✓' : '3'}
-                       </div>
-                       <p className="text-xs sm:text-sm font-medium">Video</p>
-                       <p className="text-xs text-muted-foreground">
-                         {videoUploaded ? 'Complete' : 'Pending'}
                        </p>
                      </div>
                   </div>

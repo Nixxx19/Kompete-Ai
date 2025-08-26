@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
@@ -32,7 +32,7 @@ const exercises: ExerciseType[] = [
   {
     id: 'jumping-jacks',
     name: 'Jumping Jacks',
-    icon: <Activity className="w-8 h-8" />,
+    icon: <Activity className="w-6 h-6" />,
     description: 'Full body cardio exercise for endurance',
     difficulty: 'Easy',
     duration: '30 sec',
@@ -42,7 +42,7 @@ const exercises: ExerciseType[] = [
   {
     id: 'high-knees',
     name: 'High Knees',
-    icon: <Zap className="w-8 h-8" />,
+    icon: <Zap className="w-6 h-6" />,
     description: 'Cardio and leg strength builder',
     difficulty: 'Medium',
     duration: '30 sec',
@@ -52,7 +52,7 @@ const exercises: ExerciseType[] = [
   {
     id: 'push-ups',
     name: 'Push Ups',
-    icon: <Dumbbell className="w-8 h-8" />,
+    icon: <Dumbbell className="w-6 h-6" />,
     description: 'Upper body strength training',
     difficulty: 'Medium',
     duration: '30 sec',
@@ -62,7 +62,7 @@ const exercises: ExerciseType[] = [
   {
     id: 'squats',
     name: 'Squats',
-    icon: <Target className="w-8 h-8" />,
+    icon: <Target className="w-6 h-6" />,
     description: 'Lower body strength and stability',
     difficulty: 'Easy',
     duration: '30 sec',
@@ -72,6 +72,47 @@ const exercises: ExerciseType[] = [
 ];
 
 export const ExerciseSelector = ({ onExerciseSelect, selectedExercise }: ExerciseSelectorProps) => {
+  const exerciseCardsRef = useRef<HTMLDivElement>(null);
+
+  // Handle click outside to deselect
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      
+      // Check if click is on the Start Analysis button
+      const startAnalysisButton = document.querySelector('[data-testid="start-analysis-button"]');
+      if (startAnalysisButton && startAnalysisButton.contains(target)) {
+        return; // Don't deselect if clicking on Start Analysis button
+      }
+      
+      if (exerciseCardsRef.current && !exerciseCardsRef.current.contains(target)) {
+        onExerciseSelect(null as any);
+      }
+    };
+
+    // Add event listener
+    document.addEventListener('mousedown', handleClickOutside);
+
+    // Cleanup
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [onExerciseSelect]);
+
+  // Auto-scroll when exercise is selected
+  useEffect(() => {
+    if (selectedExercise) {
+      // Scroll to the Start Analysis button
+      const startAnalysisButton = document.querySelector('[data-testid="start-analysis-button"]');
+      if (startAnalysisButton) {
+        startAnalysisButton.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+      }
+    }
+  }, [selectedExercise]);
+
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'Easy': return 'text-green-400 bg-green-400/20';
@@ -86,7 +127,7 @@ export const ExerciseSelector = ({ onExerciseSelect, selectedExercise }: Exercis
       <div className="absolute inset-0 bg-gradient-to-br from-accent/10 to-primary/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       <div className="relative z-10 p-6">
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 rounded-lg bg-accent/20 group-hover:bg-accent/30 transition-all duration-300 group-hover:scale-110">
+          <div className="p-2 rounded-lg bg-accent/20 group-hover:bg-accent/30 transition-all duration-300 group-hover:scale-105">
             <BarChart3 className="w-8 h-8 text-accent" />
           </div>
           <div>
@@ -100,29 +141,35 @@ export const ExerciseSelector = ({ onExerciseSelect, selectedExercise }: Exercis
           </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div ref={exerciseCardsRef} className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {exercises.map((exercise, index) => (
             <div
               key={exercise.id}
-              className={`relative group/item cursor-pointer transition-all duration-500 animate-scale-in w-65 h-55 ${
+              className={`relative group/item cursor-pointer transition-all duration-500 animate-scale-in w-65 h-55 rounded-lg ${
                 selectedExercise?.id === exercise.id
-                  ? 'ring-2 ring-primary shadow-lg shadow-primary/20 scale-105'
-                  : 'hover:ring-1 hover:ring-accent/50 hover:scale-105'
+                  ? ''
+                  : 'hover:ring-1 hover:ring-accent/50 hover:scale-[1.02]'
               }`}
               style={{ animationDelay: `${index * 0.1}s` }}
               onClick={() => onExerciseSelect(exercise)}
             >
-              <Card className="h-full glass-card border-border/50 p-4 hover:bg-secondary/40 transition-all duration-500 group-hover/item:shadow-xl">
+              <Card className={`h-full bg-card p-4 hover:bg-secondary/40 transition-all duration-500 group-hover/item:shadow-xl rounded-lg ${
+                selectedExercise?.id === exercise.id
+                  ? 'border-2 border-purple-800'
+                  : 'border border-border/50'
+              }`}>
                 <div className="absolute inset-0 bg-gradient-to-br from-transparent to-primary/5 rounded-lg opacity-0 group-hover/item:opacity-100 transition-opacity duration-500" />
                 <div className="relative z-10">
                   <div className="flex items-start gap-4">
-                    <div className={`p-4 rounded-xl bg-${exercise.color}-500/20 text-${exercise.color}-400 group-hover/item:bg-${exercise.color}-500/30 transition-all duration-300 group-hover/item:scale-110`}>
-                      {exercise.icon}
+                    <div className={`p-5 rounded-xl bg-${exercise.color}-500/20 text-${exercise.color}-400 group-hover/item:bg-${exercise.color}-500/30 transition-all duration-300 group-hover/item:scale-105`}>
+                      {React.cloneElement(exercise.icon as React.ReactElement, { 
+                        className: "w-8 h-8" 
+                      })}
                     </div>
                     
                     <div className="flex-1 space-y-3">
                       <div>
-                        <h4 className="font-semibold text-foreground group-hover/item:text-primary transition-colors duration-300">
+                        <h4 className="text-lg font-bold text-foreground mb-2">
                           {exercise.name}
                         </h4>
                         <p className="text-sm text-muted-foreground leading-relaxed">
@@ -131,7 +178,7 @@ export const ExerciseSelector = ({ onExerciseSelect, selectedExercise }: Exercis
                       </div>
                       
                       <div className="flex items-center gap-3 pt-2">
-                        <div className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(exercise.difficulty)}`}>
+                        <div className={`px-2 py-1 rounded-full text-xs font-semibold ${getDifficultyColor(exercise.difficulty)}`}>
                           {exercise.difficulty}
                         </div>
                         
