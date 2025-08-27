@@ -49,6 +49,7 @@ export default function JumpingJacks({ user, onFinish }) {
     const cameraRef = useRef(null);
     const poseRef = useRef(null);
     const rafRef = useRef(null);
+    const streamRef = useRef(null);
 
     // States
     const [useCamera, setUseCamera] = useState(true);
@@ -158,8 +159,13 @@ export default function JumpingJacks({ user, onFinish }) {
         }
 
         try {
-            // Ask for camera permission first
-            await navigator.mediaDevices.getUserMedia({ video: true });
+            // Ask for camera permission first and store the stream
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            
+            // Store the stream reference for later stopping
+            if (!streamRef.current) {
+                streamRef.current = stream;
+            }
 
             // Create MediaPipe camera instance
             cameraRef.current = new Camera(videoRef.current, {
@@ -188,12 +194,23 @@ export default function JumpingJacks({ user, onFinish }) {
     const startFileProcessing = useCallback(
         (fileObj) => {
             if (!videoRef.current || !poseRef.current) return;
-            const url = URL.createObjectURL(fileObj);
-            videoRef.current.src = url;
-            videoRef.current.play().then(() => {
-                setRunning(true);
-                rafRef.current = requestAnimationFrame(processFileFrame);
-            });
+            
+            // If video is already loaded with the same file, just start playing
+            if (videoRef.current.src && videoRef.current.src.includes(fileObj.name)) {
+                videoRef.current.currentTime = 0;
+                videoRef.current.play().then(() => {
+                    setRunning(true);
+                    rafRef.current = requestAnimationFrame(processFileFrame);
+                });
+            } else {
+                // Load new video
+                const url = URL.createObjectURL(fileObj);
+                videoRef.current.src = url;
+                videoRef.current.play().then(() => {
+                    setRunning(true);
+                    rafRef.current = requestAnimationFrame(processFileFrame);
+                });
+            }
         },
         [processFileFrame]
     );
@@ -210,10 +227,19 @@ export default function JumpingJacks({ user, onFinish }) {
             } catch {}
             cameraRef.current = null;
         }
-        if (videoRef.current && !useCamera) {
-            try {
-                videoRef.current.pause();
-            } catch {}
+        if (videoRef.current) {
+            // Stop any video stream
+            if (videoRef.current.srcObject) {
+                const stream = videoRef.current.srcObject;
+                stream.getTracks().forEach(track => track.stop());
+                videoRef.current.srcObject = null;
+            }
+            // Pause video if it's a file
+            if (!useCamera) {
+                try {
+                    videoRef.current.pause();
+                } catch {}
+            }
         }
         setRunning(false);
     }, [useCamera]);
@@ -325,13 +351,68 @@ export default function JumpingJacks({ user, onFinish }) {
         }
     }, []);
 
-    // Reset session
+        // Reset session
     const reset = useCallback(async () => {
+        // Stop everything first
+        await stopEverything();
+        
+        // Clear stored stream
+        if (streamRef.current) {
+            streamRef.current = null;
+        }
+        
+        // Stop pose detection
+        if (poseRef.current) {
+            try {
+                await poseRef.current.close();
+            } catch (error) {
+                console.log('Error closing pose:', error);
+            }
+            poseRef.current = null;
+        }
+        
+        // Stop everything else
         await stopEverything();
         setFile(null);
         setUseCamera(true);
         setSummary(null);
         poseScoresRef.current = [];
+        
+        // Stop camera stream if it's running
+        if (videoRef.current && videoRef.current.srcObject) {
+            const stream = videoRef.current.srcObject;
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+            videoRef.current.srcObject = null;
+        }
+        
+        // Force stop all media streams
+        try {
+            const streams = await navigator.mediaDevices.enumerateDevices();
+            console.log('Available devices:', streams.length);
+        } catch (error) {
+            console.log('Error enumerating devices:', error);
+        }
+        
+        // Clear the video element
+        if (videoRef.current) {
+            videoRef.current.src = '';
+            videoRef.current.load();
+            videoRef.current.pause();
+            videoRef.current.currentTime = 0;
+            // Force clear any cached video data
+            videoRef.current.removeAttribute('src');
+            videoRef.current.load();
+            
+            // Clear the canvas
+            if (canvasRef.current) {
+                const ctx = canvasRef.current.getContext('2d');
+                if (ctx) {
+                    ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+                }
+            }
+        }
         repTimestampsRef.current = [];
         pauseTimeRef.current = 0;
         setReps(0);
@@ -451,43 +532,185 @@ export default function JumpingJacks({ user, onFinish }) {
                         </div>
                     </header>
 
-                    <div className={"flex justify-center items-center mt-6 px-[10rem]"}>
-                        <div>
-                            <label>
-                                <input
-                                    type="radio"
-                                    checked={useCamera}
-                                    onChange={() => setUseCamera(true)}
-                                />{" "}
-                                Live Camera
-                            </label>
-                            <br />
-                            <label>
-                                <input
-                                    type="radio"
-                                    checked={!useCamera}
-                                    onChange={() => setUseCamera(false)}
-                                />{" "}
-                                Upload Video
-                            </label>
+                    {/* Premium Control Panel */}
+                    <div className="px-[10rem] mt-6">
+                        <div className="text-center mb-8">
+                            <h3 className="text-2xl font-bold text-foreground mb-2">Exercise Control Panel</h3>
+                            <p className="text-muted-foreground">Choose your input method and control your session</p>
                         </div>
 
-                        {!useCamera && (
-                            <div>
-                                <input type="file" accept="video/*" onChange={handleFileSelect} />
-                            </div>
-                        )}
+                        <div className="grid md:grid-cols-2 gap-8 items-center">
+                                        {/* Input Selection */}
+                                        <div className="space-y-6">
+                                            <h4 className="text-lg font-semibold text-foreground mb-4">Input Method</h4>
+                                            
+                                            {/* Premium Radio Buttons */}
+                                            <div className="space-y-4">
+                                                <label className="group cursor-pointer">
+                                                    <div className={`flex items-center p-4 rounded-xl border-2 transition-all duration-300 ${
+                                                        useCamera 
+                                                            ? 'border-primary bg-primary/10 shadow-lg shadow-primary/20' 
+                                                            : 'border-border/50 hover:border-primary/30 hover:bg-primary/5'
+                                                    }`}>
+                                                        <div className={`w-6 h-6 rounded-full border-2 mr-4 flex items-center justify-center transition-all duration-300 ${
+                                                            useCamera 
+                                                                ? 'border-primary bg-primary' 
+                                                                : 'border-border/50 group-hover:border-primary/50'
+                                                        }`}>
+                                                            {useCamera && (
+                                                                <div className="w-3 h-3 rounded-full bg-white animate-pulse"></div>
+                                                            )}
+                                                        </div>
+                                                        <div className="flex-1">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="p-2 rounded-lg bg-primary/20">
+                                                                    <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                                                    </svg>
+                                                                </div>
+                                                                <div>
+                                                                    <p className="font-semibold text-foreground">Live Camera</p>
+                                                                    <p className="text-sm text-muted-foreground">Real-time analysis</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <input
+                                                        type="radio"
+                                                        checked={useCamera}
+                                                        onChange={() => setUseCamera(true)}
+                                                        className="sr-only"
+                                                    />
+                                                </label>
 
-                        <div style={{ marginLeft: "auto" }} className="flex gap-4">
-                            <button onClick={startSession} disabled={running}>
-                                Start
-                            </button>
-                            <button onClick={stopSession} disabled={!running}>
-                                Stop
-                            </button>
-                            <button onClick={reset}>Reset</button>
-                        </div>
-                    </div>
+                                                <label className="group cursor-pointer">
+                                                    <div className={`flex items-center p-4 rounded-xl border-2 transition-all duration-300 ${
+                                                        !useCamera 
+                                                            ? 'border-primary bg-primary/10 shadow-lg shadow-primary/20' 
+                                                            : 'border-border/50 hover:border-primary/30 hover:bg-primary/5'
+                                                    }`}>
+                                                        <div className={`w-6 h-6 rounded-full border-2 mr-4 flex items-center justify-center transition-all duration-300 ${
+                                                            !useCamera 
+                                                                ? 'border-primary bg-primary' 
+                                                                : 'border-border/50 group-hover:border-primary/50'
+                                                        }`}>
+                                                            {!useCamera && (
+                                                                <div className="w-3 h-3 rounded-full bg-white animate-pulse"></div>
+                                                            )}
+                                                        </div>
+                                                        <div className="flex-1">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="p-2 rounded-lg bg-primary/20">
+                                                                    <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                                                    </svg>
+                                                                </div>
+                                                                <div className="flex-1">
+                                                                    <p className="font-semibold text-foreground">Upload Video</p>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <p className="text-sm text-muted-foreground">Analyze recorded video</p>
+                                                                        {running && (
+                                                                            <div className="flex items-center gap-1">
+                                                                                <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></div>
+                                                                                <span className="text-xs text-green-400 font-medium">Active</span>
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <input
+                                                        type="radio"
+                                                        checked={!useCamera}
+                                                        onChange={() => setUseCamera(false)}
+                                                        className="sr-only"
+                                                    />
+                                                </label>
+                                            </div>
+
+                                            {/* File Upload */}
+                                            {!useCamera && !file && (
+                                                <div className="mt-6">
+                                                    <div className="relative">
+                                                        <input 
+                                                            type="file" 
+                                                            accept="video/*" 
+                                                            onChange={handleFileSelect}
+                                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                                        />
+                                                        <div className="border-2 border-dashed border-primary/30 rounded-xl p-6 text-center hover:border-primary/50 hover:bg-primary/5 transition-all duration-300">
+                                                            <div className="p-3 rounded-full bg-primary/20 w-fit mx-auto mb-3">
+                                                                <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                                                </svg>
+                                                            </div>
+                                                            <p className="font-medium text-foreground">Click to upload video</p>
+                                                            <p className="text-sm text-muted-foreground">MP4, MOV, AVI supported</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                            
+
+                                        </div>
+
+                                        {/* Session Controls */}
+                                        <div className="space-y-6">
+                                            <h4 className="text-lg font-semibold text-foreground mb-4">Session Controls</h4>
+                                            
+                                            <div className="grid grid-cols-1 gap-4">
+                                                <Button 
+                                                    onClick={startSession} 
+                                                    disabled={running}
+                                                    className="w-full h-14 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="p-2 rounded-full bg-white/20">
+                                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                            </svg>
+                                                        </div>
+                                                        <span>Start Session</span>
+                                                    </div>
+                                                </Button>
+
+                                                <div className="grid grid-cols-2 gap-3">
+                                                    <Button 
+                                                        onClick={stopSession} 
+                                                        disabled={!running}
+                                                        variant="outline"
+                                                        className="h-12 bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20 hover:border-red-500/50 font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    >
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="w-2 h-2 rounded-full bg-red-400"></div>
+                                                            <span>Stop</span>
+                                                        </div>
+                                                    </Button>
+
+                                                    <Button 
+                                                        onClick={reset}
+                                                        variant="outline"
+                                                        className="h-12 bg-gray-500/10 border-gray-500/30 text-gray-400 hover:bg-gray-500/20 hover:border-gray-500/50 font-semibold transition-all duration-300"
+                                                    >
+                                                        <div className="flex items-center gap-2">
+                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                                            </svg>
+                                                            <span>Reset</span>
+                                                        </div>
+                                                    </Button>
+                                                </div>
+                                            </div>
+
+
+                                            
+
+                                        </div>
+                                    </div>
+                                </div>
+                         </div>
+                     </div>
                     <div className={"px-[10rem] mt-10  "}>
                         <div className={"flex gap-10"}>
                             <div
@@ -520,23 +743,98 @@ export default function JumpingJacks({ user, onFinish }) {
                                 />
                             </div>
 
-                            <div className="text-2xl flex flex-col">
+                            <div className="flex-1 max-w-lg">
                                 {reps === 0 ? (
-                                    <>
-                                        <p className="mb-3 font-bold">Instructions:</p>
-                                        <p>1. Start Position – Stand straight with your feet together and arms relaxed at your sides.</p>
-                                        <p>2. Jump Out – Jump up, spreading your feet shoulder-width apart while raising your arms overhead.</p>
-                                        <p>3. Jump In – Jump again to bring your feet back together and arms back to your sides.</p>
-                                    </>
+                                    <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-card/90 via-card/70 to-card/50 backdrop-blur-xl border border-border/40 shadow-2xl transition-all duration-500">
+                                        <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-accent/5"></div>
+                                        
+                                        <div className="relative p-8">
+                                            <div className="flex items-center gap-4 mb-8">
+                                                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center shadow-lg">
+                                                    <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                    </svg>
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">Instructions</h3>
+                                                    <p className="text-sm text-muted-foreground mt-1">Follow these steps for proper form</p>
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="space-y-5">
+                                                <div className="group/step flex items-start gap-5 p-5 rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/25 hover:border-primary/40 hover:shadow-lg transition-all duration-300">
+                                                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/80 text-white flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-lg">
+                                                        1
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <h4 className="font-semibold text-foreground mb-2 text-lg">Start Position</h4>
+                                                        <p className="text-sm text-muted-foreground leading-relaxed">
+                                                            Stand straight with your feet together and arms relaxed at your sides.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div className="group/step flex items-start gap-5 p-5 rounded-2xl bg-gradient-to-br from-accent/15 to-accent/5 border border-accent/25 hover:border-accent/40 hover:shadow-lg transition-all duration-300">
+                                                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-accent to-accent/80 text-white flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-lg">
+                                                        2
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <h4 className="font-semibold text-foreground mb-2 text-lg">Jump Out</h4>
+                                                        <p className="text-sm text-muted-foreground leading-relaxed">
+                                                            Jump up, spreading your feet shoulder-width apart while raising your arms overhead.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div className="group/step flex items-start gap-5 p-5 rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/25 hover:border-primary/40 hover:shadow-lg transition-all duration-300">
+                                                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/80 text-white flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-lg">
+                                                        3
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <h4 className="font-semibold text-foreground mb-2 text-lg">Jump In</h4>
+                                                        <p className="text-sm text-muted-foreground leading-relaxed">
+                                                            Jump again to bring your feet back together and arms back to your sides.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 ) : (
-                                    <>
-                                        <p>Reps : {reps}</p>
-                                        <p className="mb-10">Time : {summary
-                                            ? `${summary.total_duration}s`
-                                            : startTimeRef.current
-                                                ? Math.round(performance.now() / 1000 - startTimeRef.current) + "s"
-                                                : "0s"}</p>
-                                    </>
+                                    <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-card/90 via-card/70 to-card/50 backdrop-blur-xl border border-border/40 shadow-2xl transition-all duration-500">
+                                        <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-accent/5"></div>
+                                        
+                                        <div className="relative p-8">
+                                            <div className="flex items-center gap-4 mb-8">
+                                                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center shadow-lg">
+                                                    <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                                    </svg>
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">Live Stats</h3>
+                                                    <p className="text-sm text-muted-foreground mt-1">Real-time performance metrics</p>
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="grid grid-cols-2 gap-5">
+                                                <div className="group/stat text-center p-6 rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/25 hover:border-primary/40 hover:shadow-lg transition-all duration-300">
+                                                    <div className="text-3xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent mb-2">{reps}</div>
+                                                    <div className="text-sm text-muted-foreground font-medium">Reps</div>
+                                                </div>
+                                                <div className="group/stat text-center p-6 rounded-2xl bg-gradient-to-br from-accent/15 to-accent/5 border border-accent/25 hover:border-accent/40 hover:shadow-lg transition-all duration-300">
+                                                    <div className="text-3xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent mb-2">
+                                                        {summary
+                                                            ? `${summary.total_duration}s`
+                                                            : startTimeRef.current
+                                                                ? Math.round(performance.now() / 1000 - startTimeRef.current) + "s"
+                                                                : "0s"}
+                                                    </div>
+                                                    <div className="text-sm text-muted-foreground font-medium">Time</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 )}
                             </div>
 
@@ -752,7 +1050,5 @@ export default function JumpingJacks({ user, onFinish }) {
                         )}
                     </div>
                 </div>
-            </div>
-        </div>
     );
 }
