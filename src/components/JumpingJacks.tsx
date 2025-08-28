@@ -52,7 +52,7 @@ export default function JumpingJacks({ user, onFinish }) {
     const streamRef = useRef(null);
 
     // States
-    const [useCamera, setUseCamera] = useState(true);
+    const [useCamera, setUseCamera] = useState(null);
     const [file, setFile] = useState(null);
     const [reps, setReps] = useState(0);
     const [poseScore, setPoseScore] = useState(0);
@@ -348,7 +348,25 @@ export default function JumpingJacks({ user, onFinish }) {
             if (videoRef.current) {
                 videoRef.current.src = URL.createObjectURL(f);
             }
+            
+            // Auto-scroll to bottom after video upload
+            setTimeout(() => {
+                window.scrollTo({
+                    top: document.documentElement.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 100);
         }
+    }, []);
+
+    // Handle camera selection
+    const handleCameraSelect = useCallback(() => {
+        setUseCamera(true);
+    }, []);
+
+    // Handle upload selection
+    const handleUploadSelect = useCallback(() => {
+        setUseCamera(false);
     }, []);
 
         // Reset session
@@ -436,13 +454,21 @@ export default function JumpingJacks({ user, onFinish }) {
                 minDetectionConfidence: 0.5,
                 minTrackingConfidence: 0.5,
             });
+        }
+
+        // Always set the onResults callback
+        if (poseRef.current) {
             poseRef.current.onResults(onResults);
         }
 
         return () => {
-            stopEverything();
+            // Only stop everything when component unmounts, not on dependency changes
+            if (poseRef.current) {
+                poseRef.current.close();
+                poseRef.current = null;
+            }
         };
-    }, [onResults, stopEverything]);
+    }, [onResults]);
 
     // Plot workout summary on session end
     useEffect(() => {
@@ -465,6 +491,11 @@ export default function JumpingJacks({ user, onFinish }) {
             summary.stamina
         );
     }, [summary]);
+
+    // Auto-scroll to top when component mounts
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
     // Auto-scroll to personalized plan when FRT rating is confirmed
     useEffect(() => {
@@ -548,16 +579,16 @@ export default function JumpingJacks({ user, onFinish }) {
                                             <div className="space-y-4">
                                                 <label className="group cursor-pointer">
                                                     <div className={`flex items-center p-4 rounded-xl border-2 transition-all duration-300 ${
-                                                        useCamera 
+                                                        useCamera === true 
                                                             ? 'border-primary bg-primary/10 shadow-lg shadow-primary/20' 
                                                             : 'border-border/50 hover:border-primary/30 hover:bg-primary/5'
                                                     }`}>
                                                         <div className={`w-6 h-6 rounded-full border-2 mr-4 flex items-center justify-center transition-all duration-300 ${
-                                                            useCamera 
+                                                            useCamera === true 
                                                                 ? 'border-primary bg-primary' 
                                                                 : 'border-border/50 group-hover:border-primary/50'
                                                         }`}>
-                                                            {useCamera && (
+                                                            {useCamera === true && (
                                                                 <div className="w-3 h-3 rounded-full bg-white animate-pulse"></div>
                                                             )}
                                                         </div>
@@ -577,24 +608,24 @@ export default function JumpingJacks({ user, onFinish }) {
                                                     </div>
                                                     <input
                                                         type="radio"
-                                                        checked={useCamera}
-                                                        onChange={() => setUseCamera(true)}
+                                                        checked={useCamera === true}
+                                                        onChange={handleCameraSelect}
                                                         className="sr-only"
                                                     />
                                                 </label>
 
                                                 <label className="group cursor-pointer">
                                                     <div className={`flex items-center p-4 rounded-xl border-2 transition-all duration-300 ${
-                                                        !useCamera 
+                                                        useCamera === false 
                                                             ? 'border-primary bg-primary/10 shadow-lg shadow-primary/20' 
                                                             : 'border-border/50 hover:border-primary/30 hover:bg-primary/5'
                                                     }`}>
                                                         <div className={`w-6 h-6 rounded-full border-2 mr-4 flex items-center justify-center transition-all duration-300 ${
-                                                            !useCamera 
+                                                            useCamera === false 
                                                                 ? 'border-primary bg-primary' 
                                                                 : 'border-border/50 group-hover:border-primary/50'
                                                         }`}>
-                                                            {!useCamera && (
+                                                            {useCamera === false && (
                                                                 <div className="w-3 h-3 rounded-full bg-white animate-pulse"></div>
                                                             )}
                                                         </div>
@@ -622,15 +653,15 @@ export default function JumpingJacks({ user, onFinish }) {
                                                     </div>
                                                     <input
                                                         type="radio"
-                                                        checked={!useCamera}
-                                                        onChange={() => setUseCamera(false)}
+                                                        checked={useCamera === false}
+                                                        onChange={handleUploadSelect}
                                                         className="sr-only"
                                                     />
                                                 </label>
                                             </div>
 
                                             {/* File Upload */}
-                                            {!useCamera && !file && (
+                                            {useCamera === false && !file && (
                                                 <div className="mt-6">
                                                     <div className="relative">
                                                         <input 
@@ -711,8 +742,8 @@ export default function JumpingJacks({ user, onFinish }) {
                                 </div>
                          </div>
                      </div>
-                    <div className={"px-[10rem] mt-10  "}>
-                        <div className={"flex gap-10"}>
+                    <div className={"px-[10rem] mt-10 mb-10"}>
+                        <div className={"flex gap-10 items-start"}>
                             <div
                                 style={{
                                     width: 800,
@@ -743,13 +774,13 @@ export default function JumpingJacks({ user, onFinish }) {
                                 />
                             </div>
 
-                            <div className="flex-1 max-w-lg">
+                            <div className="flex-1 max-w-xl" style={{ height: "600px" }}>
                                 {reps === 0 ? (
-                                    <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-card/90 via-card/70 to-card/50 backdrop-blur-xl border border-border/40 shadow-2xl transition-all duration-500">
+                                    <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-card/90 via-card/70 to-card/50 backdrop-blur-xl border border-border/40 shadow-2xl transition-all duration-500 h-full">
                                         <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-accent/5"></div>
                                         
-                                        <div className="relative p-8">
-                                            <div className="flex items-center gap-4 mb-8">
+                                        <div className="relative p-8 pb-12 h-full flex flex-col">
+                                            <div className="flex items-center gap-4 mb-12">
                                                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center shadow-lg">
                                                     <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -761,7 +792,7 @@ export default function JumpingJacks({ user, onFinish }) {
                                                 </div>
                                             </div>
                                             
-                                            <div className="space-y-5">
+                                            <div className="space-y-10 flex-1">
                                                 <div className="group/step flex items-start gap-5 p-5 rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/25 hover:border-primary/40 hover:shadow-lg transition-all duration-300">
                                                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/80 text-white flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-lg">
                                                         1
@@ -801,10 +832,10 @@ export default function JumpingJacks({ user, onFinish }) {
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-card/90 via-card/70 to-card/50 backdrop-blur-xl border border-border/40 shadow-2xl transition-all duration-500">
+                                    <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-card/90 via-card/70 to-card/50 backdrop-blur-xl border border-border/40 shadow-2xl transition-all duration-500 max-w-md">
                                         <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-accent/5"></div>
                                         
-                                        <div className="relative p-8">
+                                        <div className="relative p-8 pb-12">
                                             <div className="flex items-center gap-4 mb-8">
                                                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center shadow-lg">
                                                     <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">

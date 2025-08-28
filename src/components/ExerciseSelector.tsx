@@ -127,17 +127,17 @@ export const ExerciseSelector = ({ onExerciseSelect, selectedExercise }: Exercis
       <div className="absolute inset-0 bg-gradient-to-br from-accent/10 to-primary/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       <div className="relative z-10 p-6">
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 rounded-lg bg-accent/20 group-hover:bg-accent/30 transition-all duration-300 group-hover:scale-105">
+          <div className="p-2 rounded-lg bg-accent/20 transition-all duration-300">
             <BarChart3 className="w-8 h-8 text-accent" />
           </div>
           <div>
-            <h3 className="text-2xl font-semibold text-foreground group-hover:text-accent transition-colors duration-300">
+            <h3 className="text-2xl font-semibold text-foreground transition-colors duration-300">
               Choose Exercise
             </h3>
             <p className="text-sm text-muted-foreground">Select your workout type</p>
           </div>
           <div className="ml-auto">
-            <Sparkles className="w-5 h-5 text-primary opacity-50 group-hover:opacity-100 transition-opacity duration-300" />
+            <Sparkles className="w-5 h-5 text-primary opacity-50 transition-opacity duration-300" />
           </div>
         </div>
         
@@ -148,7 +148,7 @@ export const ExerciseSelector = ({ onExerciseSelect, selectedExercise }: Exercis
               className={`relative group/item cursor-pointer transition-all duration-500 animate-scale-in w-65 h-55 rounded-lg ${
                 selectedExercise?.id === exercise.id
                   ? ''
-                  : 'hover:ring-1 hover:ring-accent/50 hover:scale-[1.02]'
+                  : 'hover:scale-[1.02]'
               }`}
               style={{ animationDelay: `${index * 0.1}s` }}
               onClick={() => onExerciseSelect(exercise)}
@@ -161,7 +161,7 @@ export const ExerciseSelector = ({ onExerciseSelect, selectedExercise }: Exercis
                 <div className="absolute inset-0 bg-gradient-to-br from-transparent to-primary/5 rounded-lg opacity-0 group-hover/item:opacity-100 transition-opacity duration-500" />
                 <div className="relative z-10">
                   <div className="flex items-start gap-4">
-                    <div className={`p-5 rounded-xl bg-${exercise.color}-500/20 text-${exercise.color}-400 group-hover/item:bg-${exercise.color}-500/30 transition-all duration-300 group-hover/item:scale-105`}>
+                    <div className={`p-5 rounded-xl bg-${exercise.color}-500/20 text-${exercise.color}-400 transition-all duration-300`}>
                       {React.cloneElement(exercise.icon as React.ReactElement, { 
                         className: "w-8 h-8" 
                       })}
@@ -169,7 +169,7 @@ export const ExerciseSelector = ({ onExerciseSelect, selectedExercise }: Exercis
                     
                     <div className="flex-1 space-y-3">
                       <div>
-                        <h4 className="text-lg font-bold text-foreground mb-2">
+                        <h4 className="text-lg font-bold text-foreground/90 mb-2">
                           {exercise.name}
                         </h4>
                         <p className="text-sm text-muted-foreground leading-relaxed">

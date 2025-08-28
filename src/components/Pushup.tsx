@@ -55,6 +55,7 @@ export default function PushUps({ user, onFinish }) {
     const cameraRef = useRef(null);
     const poseRef = useRef(null);
     const rafRef = useRef(null);
+    const streamRef = useRef(null);
 
     // States
     const [useCamera, setUseCamera] = useState(true);
@@ -402,21 +403,84 @@ export default function PushUps({ user, onFinish }) {
             if (videoRef.current) {
                 videoRef.current.src = URL.createObjectURL(f);
             }
+            
+            // Auto-scroll to bottom after video upload
+            setTimeout(() => {
+                window.scrollTo({
+                    top: document.documentElement.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 100);
         }
     }, []);
 
     // Reset session
     const reset = useCallback(async () => {
+        // Stop everything first
+        await stopEverything();
+        
+        // Clear stored stream
+        if (streamRef.current) {
+            streamRef.current = null;
+        }
+        
+        // Stop pose detection
+        if (poseRef.current) {
+            try {
+                await poseRef.current.close();
+            } catch (error) {
+                console.log('Error closing pose:', error);
+            }
+            poseRef.current = null;
+        }
+        
+        // Stop everything else
         await stopEverything();
         setFile(null);
         setUseCamera(true);
         setSummary(null);
+        poseScoresRef.current = [];
+        
+        // Stop camera stream if it's running
+        if (videoRef.current && videoRef.current.srcObject) {
+            const stream = videoRef.current.srcObject;
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+            videoRef.current.srcObject = null;
+        }
+        
+        // Force stop all media streams
+        try {
+            const streams = await navigator.mediaDevices.enumerateDevices();
+            console.log('Available devices:', streams.length);
+        } catch (error) {
+            console.log('Error enumerating devices:', error);
+        }
+        
+        // Clear the video element
+        if (videoRef.current) {
+            videoRef.current.src = '';
+            videoRef.current.load();
+            videoRef.current.pause();
+            videoRef.current.currentTime = 0;
+            // Force clear any cached video data
+            videoRef.current.removeAttribute('src');
+            videoRef.current.load();
+            
+            // Clear the canvas
+            if (canvasRef.current) {
+                const ctx = canvasRef.current.getContext('2d');
+                if (ctx) {
+                    ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+                }
+            }
+        }
+        repTimestampsRef.current = [];
+        pauseTimeRef.current = 0;
         setReps(0);
         setPoseScore(0);
         setElapsedTime(0);
-        pauseTimeRef.current = 0;
-        poseScoresRef.current = [];
-        repTimestampsRef.current = [];
         setIsSessionActive(false);
         setFrtRating(50);
         setFrtConfirmed(false);
@@ -509,10 +573,15 @@ export default function PushUps({ user, onFinish }) {
         }
     }, [showPersonalizedPlan]);
 
+    // Auto-scroll to top when component mounts
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
     return (
-        <div className="min-h-screen bg-background overflow-y-auto z-[-1]" >
+        <div className="min-h-screen bg-background overflow-y-auto z-[-1]">
             <div className="relative z-10">
-                <div>
+            <div>
 
                 <header className="border-b border-border/50 backdrop-blur-xl bg-background/80">
                     <div className="container mx-auto px-4 py-4">
@@ -526,7 +595,7 @@ export default function PushUps({ user, onFinish }) {
                                 </Link>
                                 <div className="flex items-center gap-3">
                                     <div className="p-3 rounded-xl bg-blue-500/30 border border-blue-500/20">
-                                        <Dumbbell className="w-8 h-8 text-blue-300" />
+                                        <Dumbbell className="w-7 h-7 text-blue-300" />
                                     </div>
                                     <div>
                                         <h1 className="text-2xl font-bold text-foreground">PushUps Analysis</h1>
@@ -538,45 +607,175 @@ export default function PushUps({ user, onFinish }) {
                     </div>
                 </header>
 
-                <div className={"flex justify-center items-center mt-6 px-[10rem]"}>
-                    <div>
-                        <label>
-                            <input
-                                type="radio"
-                                checked={useCamera}
-                                onChange={() => setUseCamera(true)}
-                            />{" "}
-                            Live Camera
-                        </label>
-                        <br />
-                        <label>
-                            <input
-                                type="radio"
-                                checked={!useCamera}
-                                onChange={() => setUseCamera(false)}
-                            />{" "}
-                            Upload Video
-                        </label>
+                {/* Premium Control Panel */}
+                <div className="px-[10rem] mt-6">
+                    <div className="text-center mb-8">
+                        <h3 className="text-2xl font-bold text-foreground mb-2">Exercise Control Panel</h3>
+                        <p className="text-muted-foreground">Choose your input method and control your session</p>
                     </div>
 
-                    {!useCamera && (
-                        <div>
-                            <input type="file" accept="video/*" onChange={handleFileSelect} />
-                        </div>
-                    )}
+                    <div className="grid md:grid-cols-2 gap-8 items-center">
+                        {/* Input Selection */}
+                        <div className="space-y-6">
+                            <h4 className="text-lg font-semibold text-foreground mb-4">Input Method</h4>
 
-                    <div style={{ marginLeft: "auto" }} className="flex gap-4">
-                        <button onClick={startSession} disabled={running}>
-                            Start
-                        </button>
-                        <button onClick={stopSession} disabled={!running}>
-                            Stop
-                        </button>
-                        <button onClick={reset}>Reset</button>
+                            {/* Premium Radio Buttons */}
+                            <div className="space-y-4">
+                                <label className="group cursor-pointer">
+                                    <div className={`flex items-center p-4 rounded-xl border-2 transition-all duration-300 ${useCamera === true
+                                            ? 'border-primary bg-primary/10 shadow-lg shadow-primary/20'
+                                            : 'border-border/50 hover:border-primary/30 hover:bg-primary/5'}`}>
+                                        <div className={`w-6 h-6 rounded-full border-2 mr-4 flex items-center justify-center transition-all duration-300 ${useCamera === true
+                                                ? 'border-primary bg-primary'
+                                                : 'border-border/50 group-hover:border-primary/50'}`}>
+                                            {useCamera === true && (
+                                                <div className="w-3 h-3 rounded-full bg-white animate-pulse"></div>
+                                            )}
+                                        </div>
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 rounded-lg bg-primary/20">
+                                                    <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                                    </svg>
+                                                </div>
+                                                <div>
+                                                    <p className="font-semibold text-foreground">Live Camera</p>
+                                                    <p className="text-sm text-muted-foreground">Real-time analysis</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input
+                                        type="radio"
+                                        checked={useCamera === true}
+                                        onChange={() => setUseCamera(true)}
+                                        className="sr-only" />
+                                </label>
+
+                                <label className="group cursor-pointer">
+                                    <div className={`flex items-center p-4 rounded-xl border-2 transition-all duration-300 ${useCamera === false
+                                            ? 'border-primary bg-primary/10 shadow-lg shadow-primary/20'
+                                            : 'border-border/50 hover:border-primary/30 hover:bg-primary/5'}`}>
+                                        <div className={`w-6 h-6 rounded-full border-2 mr-4 flex items-center justify-center transition-all duration-300 ${useCamera === false
+                                                ? 'border-primary bg-primary'
+                                                : 'border-border/50 group-hover:border-primary/50'}`}>
+                                            {useCamera === false && (
+                                                <div className="w-3 h-3 rounded-full bg-white animate-pulse"></div>
+                                            )}
+                                        </div>
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 rounded-lg bg-primary/20">
+                                                    <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                                    </svg>
+                                                </div>
+                                                <div className="flex-1">
+                                                    <p className="font-semibold text-foreground">Upload Video</p>
+                                                    <div className="flex items-center gap-2">
+                                                        <p className="text-sm text-muted-foreground">Analyze recorded video</p>
+                                                        {running && (
+                                                            <div className="flex items-center gap-1">
+                                                                <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></div>
+                                                                <span className="text-xs text-green-400 font-medium">Active</span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input
+                                        type="radio"
+                                        checked={useCamera === false}
+                                        onChange={() => setUseCamera(false)}
+                                        className="sr-only" />
+                                </label>
+                            </div>
+
+                            {/* File Upload */}
+                            {useCamera === false && !file && (
+                                <div className="mt-6">
+                                    <div className="relative">
+                                        <input
+                                            type="file"
+                                            accept="video/*"
+                                            onChange={handleFileSelect}
+                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                                        <div className="border-2 border-dashed border-primary/30 rounded-xl p-6 text-center hover:border-primary/50 hover:bg-primary/5 transition-all duration-300">
+                                            <div className="p-3 rounded-full bg-primary/20 w-fit mx-auto mb-3">
+                                                <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                                </svg>
+                                            </div>
+                                            <p className="font-medium text-foreground">Click to upload video</p>
+                                            <p className="text-sm text-muted-foreground">MP4, MOV, AVI supported</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+
+                        </div>
+
+                        {/* Session Controls */}
+                        <div className="space-y-6">
+                            <h4 className="text-lg font-semibold text-foreground mb-4">Session Controls</h4>
+
+                            <div className="grid grid-cols-1 gap-4">
+                                <Button
+                                    onClick={startSession}
+                                    disabled={running}
+                                    className="w-full h-14 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 rounded-full bg-white/20">
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </div>
+                                        <span>Start Session</span>
+                                    </div>
+                                </Button>
+
+                                <div className="grid grid-cols-2 gap-3">
+                                    <Button
+                                        onClick={stopSession}
+                                        disabled={!running}
+                                        variant="outline"
+                                        className="h-12 bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20 hover:border-red-500/50 font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-2 h-2 rounded-full bg-red-400"></div>
+                                            <span>Stop</span>
+                                        </div>
+                                    </Button>
+
+                                    <Button
+                                        onClick={reset}
+                                        variant="outline"
+                                        className="h-12 bg-gray-500/10 border-gray-500/30 text-gray-400 hover:bg-gray-500/20 hover:border-gray-500/50 font-semibold transition-all duration-300"
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                            </svg>
+                                            <span>Reset</span>
+                                        </div>
+                                    </Button>
+                                </div>
+                            </div>
+
+
+
+
+                        </div>
                     </div>
                 </div>
-                <div className={"px-[10rem] mt-10  "}>
-                <div className={"flex gap-10"}>
+            </div>
+        </div><div className={"px-[10rem] mt-10 mb-10"}>
+                <div className={"flex gap-10 items-start"}>
                     <div
                         style={{
                             width: 800,
@@ -592,8 +791,7 @@ export default function PushUps({ user, onFinish }) {
                             ref={videoRef}
                             style={{ width: "100%", height: "100%", transform: "scaleX(-1)" }}
                             playsInline
-                            muted
-                        />
+                            muted />
                         <canvas
                             ref={canvasRef}
                             style={{
@@ -603,215 +801,310 @@ export default function PushUps({ user, onFinish }) {
                                 width: "100%",
                                 height: "100%",
                                 transform: "scaleX(-1)",
-                            }}
-                        />
+                            }} />
                     </div>
 
-                    <div className="text-2xl flex flex-col">
+                    <div className="flex-1 max-w-xl" style={{ height: "600px" }}>
                         {reps === 0 ? (
-                            <>
-                                <p className="mb-3 font-bold">Instructions:</p>
-                                <p>1. Set up – Hands slightly wider than shoulders, body straight like a plank, core tight.</p>
-                                <p>2. Lower – Bend elbows, keep body straight, chest close to floor.</p>
-                                <p>3. Push – Press up through palms, return to plank, repeat.</p>
-                            </>
+                            <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-card/90 via-card/70 to-card/50 backdrop-blur-xl border border-border/40 shadow-2xl transition-all duration-500 h-full">
+                                <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-accent/5"></div>
+
+                                <div className="relative p-8 pb-12 h-full flex flex-col">
+                                    <div className="flex items-center gap-4 mb-12">
+                                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center shadow-lg">
+                                            <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 className="text-xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">Instructions</h3>
+                                            <p className="text-sm text-muted-foreground mt-1">Follow these steps for proper form</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-10 flex-1">
+                                        <div className="group/step flex items-start gap-5 p-5 rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/25 hover:border-primary/40 hover:shadow-lg transition-all duration-300">
+                                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/80 text-white flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-lg">
+                                                1
+                                            </div>
+                                            <div className="flex-1">
+                                                <h4 className="font-semibold text-foreground mb-2 text-lg">Set Up</h4>
+                                                <p className="text-sm text-muted-foreground leading-relaxed">
+                                                    Hands slightly wider than shoulders, body straight like a plank, core tight.
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="group/step flex items-start gap-5 p-5 rounded-2xl bg-gradient-to-br from-accent/15 to-accent/5 border border-accent/25 hover:border-accent/40 hover:shadow-lg transition-all duration-300">
+                                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-accent to-accent/80 text-white flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-lg">
+                                                2
+                                            </div>
+                                            <div className="flex-1">
+                                                <h4 className="font-semibold text-foreground mb-2 text-lg">Lower</h4>
+                                                <p className="text-sm text-muted-foreground leading-relaxed">
+                                                    Bend elbows, keep body straight, chest close to floor.
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="group/step flex items-start gap-5 p-5 rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/25 hover:border-primary/40 hover:shadow-lg transition-all duration-300">
+                                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/80 text-white flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-lg">
+                                                3
+                                            </div>
+                                            <div className="flex-1">
+                                                <h4 className="font-semibold text-foreground mb-2 text-lg">Push</h4>
+                                                <p className="text-sm text-muted-foreground leading-relaxed">
+                                                    Press up through palms, return to plank, repeat.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         ) : (
-                            <>
-                                <p>Reps : {reps}</p>
-                                <p className="mb-10">Time : {Math.floor(elapsedTime)}s</p>
-                            </>
+                            <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-card/90 via-card/70 to-card/50 backdrop-blur-xl border border-border/40 shadow-2xl transition-all duration-500 max-w-md">
+                                <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-accent/5"></div>
+
+                                <div className="relative p-8 pb-12">
+                                    <div className="flex items-center gap-4 mb-8">
+                                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center shadow-lg">
+                                            <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 className="text-xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">Live Stats</h3>
+                                            <p className="text-sm text-muted-foreground mt-1">Real-time performance metrics</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-5">
+                                        <div className="group/stat text-center p-6 rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/25 hover:border-primary/40 hover:shadow-lg transition-all duration-300">
+                                            <div className="text-3xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent mb-2">{reps}</div>
+                                            <div className="text-sm text-muted-foreground font-medium">Reps</div>
+                                        </div>
+                                        <div className="group/stat text-center p-6 rounded-2xl bg-gradient-to-br from-accent/15 to-accent/5 border border-accent/25 hover:border-accent/40 hover:shadow-lg transition-all duration-300">
+                                            <div className="text-3xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent mb-2">
+                                                {summary
+                                                    ? `${summary.total_duration}s`
+                                                    : startTimeRef.current
+                                                        ? Math.round(performance.now() / 1000 - startTimeRef.current) + "s"
+                                                        : "0s"}
+                                            </div>
+                                            <div className="text-sm text-muted-foreground font-medium">Time</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         )}
                     </div>
 
 
                 </div>
-                        {summary && (
-                            <div className={"mt-10"}>
-                                <section className="animate-fade-in">
-                                    <Card className="relative overflow-hidden backdrop-blur-xl bg-gradient-to-br from-card/90 via-card/80 to-card/70 border-0 shadow-2xl glow-primary">
-                                        <div className="absolute inset-0 bg-gradient-to-br from-kompte-purple/5 via-transparent to-velocity-orange/5"></div>
-                                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-kompte-purple via-velocity-orange to-accuracy-green"></div>
+                {summary && (
+                    <div className={"mt-10"}>
+                        <section className="animate-fade-in">
+                            <Card className="relative overflow-hidden backdrop-blur-xl bg-gradient-to-br from-card/90 via-card/80 to-card/70 border-0 shadow-2xl glow-primary">
+                                <div className="absolute inset-0 bg-gradient-to-br from-kompte-purple/5 via-transparent to-velocity-orange/5"></div>
+                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-kompte-purple via-velocity-orange to-accuracy-green"></div>
 
 
-                                        <CardHeader className="relative">
-                                            <div className="flex items-center justify-between">
-                                                <div>
-                                                    <CardTitle className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent mb-2">
-                                                        Session Results
-                                                    </CardTitle>
-                                                    <p className="text-sm text-muted-foreground">
-                                                        Video Analysis
-                                                    </p>
-                                                </div>
-                                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/30 flex items-center justify-center">
-                                                    <Trophy className="w-6 h-6 text-primary" />
-                                                </div>
-                                            </div>
-                                        </CardHeader>
-                                        <CardContent className="relative">
-                                            <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
-                                                <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-kompte-purple/10 to-kompte-purple/5 border border-kompte-purple/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
-                                                    <div className="text-xs uppercase tracking-wider text-kompte-purple font-semibold mb-2">Name</div>
-                                                    <div className="text-xl font-bold text-foreground">{summary.activeUser.name}</div>
-                                                </div>
-
-                                                <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-velocity-orange/10 to-velocity-orange/5 border border-velocity-orange/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
-                                                    <div className="text-xs uppercase tracking-wider text-velocity-orange font-semibold mb-2">Age</div>
-                                                    <div className="text-xl font-bold text-foreground">{summary.activeUser.age}</div>
-                                                </div>
-
-                                                <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-data-blue/10 to-data-blue/5 border border-data-blue/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
-                                                    <div className="text-xs uppercase tracking-wider text-data-blue font-semibold mb-2">Reps</div>
-                                                    <div className="text-xl font-bold text-foreground">{summary.total_reps}</div>
-                                                </div>
-
-                                                <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-accuracy-green/10 to-accuracy-green/5 border border-accuracy-green/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
-                                                    <div className="text-xs uppercase tracking-wider text-accuracy-green font-semibold mb-2">Height</div>
-                                                    <div className="text-xl font-bold text-foreground">{summary.activeUser.height}</div>
-                                                </div>
-
-                                                <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-kompte-purple/10 to-kompte-purple/5 border border-kompte-purple/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
-                                                    <div className="text-xs uppercase tracking-wider text-kompte-purple font-semibold mb-2">Weight</div>
-                                                    <div className="text-xl font-bold text-foreground">{summary.activeUser.weight} kg</div>
-                                                </div>
-
-                                                <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-velocity-orange/10 to-velocity-orange/5 border border-velocity-orange/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
-                                                    <div className="text-xs uppercase tracking-wider text-velocity-orange font-semibold mb-2">Gender</div>
-                                                    <div className="text-xl font-bold text-foreground">{summary.activeUser.gender}</div>
-                                                </div>
-                                            </div>
-
-        
-                                        </CardContent>
-                                    </Card>
-                                </section>
-                                <section>
-                                    <PerformanceInsights stamina={summary.stamina} cal={summary.calories} form={summary.avg_pose_score} recov={Math.floor(elapsedTime).toString()}/>
-                                </section>
-                                <div
-                                    style={{ marginTop: 1, background: "hsl(var(--card))", padding: 80,borderRadius: 25 , }}
-                                >
-                                    <h4 className="text-lg font-bold text-foreground">Charts</h4>
-                                    {/*<div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>*/}
-                                    <div className="grid grid-cols-3 gap-x-24 gap-y-24">
-                                        <div style={{ flex: "1 1 600px", height: 360 }}>
-                                            <canvas id="pushup-reps-chart" style={{ width: "100%", height: "100%" }} />
-                                        </div>
-                                        <div style={{ flex: "1 1 600px", height: 360 }}>
-                                            <canvas id="pushup-pose-chart" style={{ width: "100%", height: "100%" }} />
-                                        </div>
-                                        <div style={{ flex: "1 1 600px", height: 360 }}>
-                                            <canvas
-                                                id="pushup-activity-chart"
-                                                style={{ width: "100%", height: "100%" }}
-                                            />
-                                        </div>
-
-                                    </div>
-
-                                </div>
-                                {/* FRT Slider - appears after Performance Insights and charts */}
-                                <div
-                                    style={{ marginTop: 100, background: "hsl(var(--background))", padding: 10, borderRadius: 25 }}
-                                >
-                                        {/* Header */}
-                                        <div className="text-center mb-12 animate-fade-in">
-                                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
-                                                <span className="text-sm font-medium text-primary">Functional Reach Test</span>
-                                            </div>
-                                            <h2 className="text-4xl font-bold tracking-tight mb-4 text-center">
-                                                 Select Your <span className="gradient-text">FRT Rating</span>
-                                             </h2>
-                                            <p className="text-lg text-muted-foreground max-w-4xl mx-auto whitespace-nowrap">
-                                                Choose the difficulty level that best represents your current functional reach capability
+                                <CardHeader className="relative">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <CardTitle className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent mb-2">
+                                                Session Results
+                                            </CardTitle>
+                                            <p className="text-sm text-muted-foreground">
+                                                Video Analysis
                                             </p>
                                         </div>
-
-                                        {/* Simple Slider */}
-                                        <Card className="pt-6 pb-16 px-10 space-y-10 max-w-5xl mx-auto bg-card border border-border hover:shadow-2xl transition-all duration-500 hover:scale-105">
-                                          <div className="text-center space-y-4">
-                                            <h3 className="text-2xl font-bold text-foreground">Rate Your Difficulty</h3>
-                                            <p className="text-lg text-muted-foreground">Easy to Hard</p>
-                                          </div>
-
-                                          {/* Simple Range Slider */}
-                                          <div className="space-y-6">
-                                            <div className="flex justify-between items-center">
-                                              <span className="text-sm font-medium text-green-400 -ml-2">Easy</span>
-                                              <span className="text-sm font-medium text-red-400 -mr-2">Hard</span>
-                                            </div>
-
-                                            <div className="w-full flex flex-col items-center">
-                                              <input
-                                                type="range"
-                                                min="0"
-                                                max="100"
-                                                step="25"
-                                                value={frtRating}
-                                                onChange={handleFrtRatingChange}
-                                                className="w-full h-3 bg-secondary rounded-lg appearance-none cursor-pointer slider"
-                                                style={{
-                                                  background: 'linear-gradient(90deg, hsl(120 84% 60%) 0%, hsl(60 84% 70%) 50%, hsl(0 84% 60%) 100%)'
-                                                }}
-                                              />
-                                            </div>
-
-                                                <div className="relative w-full mt-2">
-                                                    <div className="flex justify-between text-xs text-muted-foreground">
-                                                        <span className={`absolute left-0 transform -translate-x-1/2 ${frtRating === 0 ? 'text-green-400 font-semibold' : ''}`}>Very<br/>Easy</span>
-                                                        <span className={`absolute left-1/4 transform -translate-x-1/2 ${frtRating === 25 ? 'text-green-400 font-semibold' : ''}`}>Easy</span>
-                                                        <span className={`absolute left-1/2 transform -translate-x-1/2 ${frtRating === 50 ? 'text-green-400 font-semibold' : ''}`}>Moderate</span>
-                                                        <span className={`absolute left-3/4 transform -translate-x-1/2 ${frtRating === 75 ? 'text-red-400 font-semibold' : ''}`}>Hard</span>
-                                                        <span className={`absolute left-full transform -translate-x-1/2 ${frtRating === 100 ? 'text-red-400 font-semibold' : ''}`}>Very Hard</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Action Buttons */}
-                                            <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                                                <Button
-                                                    variant="outline"
-                                                    className="flex-1 border-border/50 hover:bg-muted/50"
-                                                    onClick={handleResetToModerate}
-                                                >
-                                                    Reset to Moderate
-                                                </Button>
-                                                <Button
-                                                    className="btn-premium flex-1"
-                                                    onClick={handleConfirmRating}
-                                                    disabled={frtConfirmed}
-                                                >
-                                                    {frtConfirmed ? 'Rating Confirmed!' : 'Confirm Rating'}
-                                                </Button>
-                                            </div>
-
-                                        </Card>
-                                        
-                                        {/* Personalized Plan Button - appears after confirmation, outside the card */}
-                                        {showPersonalizedPlan && (
-                                            <div className="mt-12 text-center" data-testid="personalized-plan-section">
-                                                <Button
-                                                    className="w-full max-w-lg bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-600 hover:from-emerald-600 hover:via-green-600 hover:to-emerald-700 text-white font-bold py-6 px-10 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:scale-110 border-2 border-emerald-400/30 backdrop-blur-sm"
-                                                    onClick={handlePersonalizedPlan}
-                                                >
-                                                    <div className="flex items-center justify-center gap-3">
-                                                        <span className="text-2xl">💪</span>
-                                                        <span className="text-lg">Pay INR XX for Personalized Fitness Plans</span>
-                                                        <span className="text-2xl">✨</span>
-                                                    </div>
-                                                </Button>
-                                                <p className="text-sm text-muted-foreground text-center mt-4 font-medium">
-                                                    Get customized workout plans based on your FRT rating
-                                                </p>
-                                            </div>
-                                        )}
+                                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/30 flex items-center justify-center">
+                                            <Trophy className="w-6 h-6 text-primary" />
+                                        </div>
                                     </div>
+                                </CardHeader>
+                                <CardContent className="relative">
+                                    <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
+                                        <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-kompte-purple/10 to-kompte-purple/5 border border-kompte-purple/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
+                                            <div className="text-xs uppercase tracking-wider text-kompte-purple font-semibold mb-2">Name</div>
+                                            <div className="text-xl font-bold text-foreground">{summary.activeUser.name}</div>
+                                        </div>
+
+                                        <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-velocity-orange/10 to-velocity-orange/5 border border-velocity-orange/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
+                                            <div className="text-xs uppercase tracking-wider text-velocity-orange font-semibold mb-2">Age</div>
+                                            <div className="text-xl font-bold text-foreground">{summary.activeUser.age}</div>
+                                        </div>
+
+                                        <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-data-blue/10 to-data-blue/5 border border-data-blue/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
+                                            <div className="text-xs uppercase tracking-wider text-data-blue font-semibold mb-2">Reps</div>
+                                            <div className="text-xl font-bold text-foreground">{summary.total_reps}</div>
+                                        </div>
+
+                                        <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-accuracy-green/10 to-accuracy-green/5 border border-accuracy-green/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
+                                            <div className="text-xs uppercase tracking-wider text-accuracy-green font-semibold mb-2">Height</div>
+                                            <div className="text-xl font-bold text-foreground">{summary.activeUser.height}</div>
+                                        </div>
+
+                                        <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-kompte-purple/10 to-kompte-purple/5 border border-kompte-purple/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
+                                            <div className="text-xs uppercase tracking-wider text-kompte-purple font-semibold mb-2">Weight</div>
+                                            <div className="text-xl font-bold text-foreground">{summary.activeUser.weight} kg</div>
+                                        </div>
+
+                                        <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-velocity-orange/10 to-velocity-orange/5 border border-velocity-orange/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
+                                            <div className="text-xs uppercase tracking-wider text-velocity-orange font-semibold mb-2">Gender</div>
+                                            <div className="text-xl font-bold text-foreground">{summary.activeUser.gender}</div>
+                                        </div>
+                                    </div>
+
+
+                                </CardContent>
+                            </Card>
+                        </section>
+                        <section>
+                            <PerformanceInsights stamina={summary.stamina} cal={summary.calories} form={summary.avg_pose_score} recov={Math.floor(elapsedTime).toString()} />
+                        </section>
+                        <div
+                            style={{ marginTop: 1, background: "hsl(var(--card))", padding: 80, borderRadius: 25, }}
+                        >
+                            <h4 className="text-lg font-bold text-foreground">Charts</h4>
+                            {/*<div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>*/}
+                            <div className="grid grid-cols-3 gap-x-24 gap-y-24">
+                                <div style={{ flex: "1 1 600px", height: 360 }}>
+                                    <canvas id="pushup-reps-chart" style={{ width: "100%", height: "100%" }} />
+                                </div>
+                                <div style={{ flex: "1 1 600px", height: 360 }}>
+                                    <canvas id="pushup-pose-chart" style={{ width: "100%", height: "100%" }} />
+                                </div>
+                                <div style={{ flex: "1 1 600px", height: 360 }}>
+                                    <canvas
+                                        id="pushup-activity-chart"
+                                        style={{ width: "100%", height: "100%" }} />
+                                </div>
+
+                            </div>
+
+                        </div>
+                        {/* FRT Slider - appears after Performance Insights and charts */}
+                        <div
+                            style={{
+                                marginTop: 100,
+                                background: "hsl(var(--background))",
+                                padding: 10,
+                                borderRadius: 25,
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "center",
+                            }}
+                        >
+                            {/* Header */}
+                            <div className="text-center mb-12 animate-fade-in w-full">
+                                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
+                                    <span className="text-sm font-medium text-primary">Functional Reach Test</span>
+                                </div>
+                                <h2 className="text-4xl font-bold tracking-tight mb-4 text-center">
+                                    Select Your <span className="gradient-text">FRT Rating</span>
+                                </h2>
+                                <p className="text-lg text-muted-foreground max-w-4xl mx-auto whitespace-nowrap">
+                                    Choose the difficulty level that best represents your current functional reach capability
+                                </p>
+                            </div>
+
+                            {/* Simple Slider */}
+                            <Card className="pt-6 pb-16 px-10 space-y-10 max-w-5xl mx-auto bg-card border border-border hover:shadow-2xl transition-all duration-500 hover:scale-105 w-full">
+                                <div className="text-center space-y-4">
+                                    <h3 className="text-2xl font-bold text-foreground">Rate Your Difficulty</h3>
+                                    <p className="text-lg text-muted-foreground">Easy to Hard</p>
+                                </div>
+
+                                {/* Simple Range Slider */}
+                                <div className="space-y-6 w-full">
+                                    <div className="flex justify-between items-center w-full">
+                                        <span className="text-sm font-medium text-green-400 -ml-2">Easy</span>
+                                        <span className="text-sm font-medium text-red-400 -mr-2">Hard</span>
+                                    </div>
+
+                                    <div className="w-full flex flex-col items-center">
+                                        <input
+                                            type="range"
+                                            min="0"
+                                            max="100"
+                                            step="25"
+                                            value={frtRating}
+                                            onChange={handleFrtRatingChange}
+                                            className="w-full h-3 bg-secondary rounded-lg appearance-none cursor-pointer slider"
+                                            style={{
+                                                background: 'linear-gradient(90deg, hsl(120 84% 60%) 0%, hsl(60 84% 70%) 50%, hsl(0 84% 60%) 100%)'
+                                            }} />
+                                    </div>
+
+                                    <div className="relative w-full mt-2" style={{ minHeight: 32 }}>
+                                        <div className="flex justify-between text-xs text-muted-foreground w-full relative">
+                                            <span
+                                                className={`absolute left-0 transform -translate-x-1/2 ${frtRating === 0 ? 'text-green-400 font-semibold' : ''}`}
+                                                style={{ left: "0%" }}
+                                            >Very<br />Easy</span>
+                                            <span
+                                                className={`absolute left-1/4 transform -translate-x-1/2 ${frtRating === 25 ? 'text-green-400 font-semibold' : ''}`}
+                                                style={{ left: "25%" }}
+                                            >Easy</span>
+                                            <span
+                                                className={`absolute left-1/2 transform -translate-x-1/2 ${frtRating === 50 ? 'text-green-400 font-semibold' : ''}`}
+                                                style={{ left: "50%" }}
+                                            >Moderate</span>
+                                            <span
+                                                className={`absolute left-3/4 transform -translate-x-1/2 ${frtRating === 75 ? 'text-red-400 font-semibold' : ''}`}
+                                                style={{ left: "75%" }}
+                                            >Hard</span>
+                                            <span
+                                                className={`absolute left-full transform -translate-x-1/2 ${frtRating === 100 ? 'text-red-400 font-semibold' : ''}`}
+                                                style={{ left: "100%" }}
+                                            >Very Hard</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Action Buttons */}
+                                <div className="flex flex-col sm:flex-row gap-4 pt-4 w-full">
+                                    <Button
+                                        variant="outline"
+                                        className="flex-1 border-border/50 hover:bg-muted/50"
+                                        onClick={handleResetToModerate}
+                                    >
+                                        Reset to Moderate
+                                    </Button>
+                                    <Button
+                                        className="btn-premium flex-1"
+                                        onClick={handleConfirmRating}
+                                        disabled={frtConfirmed}
+                                    >
+                                        {frtConfirmed ? 'Rating Confirmed!' : 'Confirm Rating'}
+                                    </Button>
+                                </div>
+                            </Card>
+
+                            {/* Personalized Plan Button - appears after confirmation, outside the card */}
+                            {showPersonalizedPlan && (
+                                <div className="mt-12 text-center w-full flex flex-col items-center" data-testid="personalized-plan-section">
+                                    <Button
+                                        className="w-full max-w-lg bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-600 hover:from-emerald-600 hover:via-green-600 hover:to-emerald-700 text-white font-bold py-6 px-10 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:scale-110 border-2 border-emerald-400/30 backdrop-blur-sm"
+                                        onClick={handlePersonalizedPlan}
+                                    >
+                                        <div className="flex items-center justify-center gap-3">
+                                            <span className="text-2xl">💪</span>
+                                            <span className="text-lg">Pay INR XX for Personalized Fitness Plans</span>
+                                            <span className="text-2xl">✨</span>
+                                        </div>
+                                    </Button>
+                                    <p className="text-sm text-muted-foreground text-center mt-4 font-medium">
+                                        Get customized workout plans based on your FRT rating
+                                    </p>
                                 </div>
                             )}
                         </div>
                     </div>
-                </div>
-                <div className="h-16"></div> {/* Bottom spacing */}
+                )}
             </div>
+        </div>
     );
 }
