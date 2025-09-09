@@ -55,6 +55,7 @@ export default function HighKnees({ user, onFinish }) {
     const cameraRef = useRef(null);
     const poseRef = useRef(null);
     const rafRef = useRef(null);
+    const streamRef = useRef(null);
 
     const [useCamera, setUseCamera] = useState(true);
     const [file, setFile] = useState(null);
@@ -177,8 +178,11 @@ export default function HighKnees({ user, onFinish }) {
         }
 
         try {
-            // Ask for camera permission first
-            await navigator.mediaDevices.getUserMedia({ video: true });
+            // Ask for camera permission first and store the stream
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            if (!streamRef.current) {
+                streamRef.current = stream;
+            }
 
             // Create MediaPipe camera instance
             cameraRef.current = new Camera(videoRef.current, {
@@ -228,10 +232,19 @@ export default function HighKnees({ user, onFinish }) {
             } catch {}
             cameraRef.current = null;
         }
-        if (videoRef.current && !useCamera) {
-            try {
-                videoRef.current.pause();
-            } catch {}
+        if (videoRef.current) {
+            // Stop any video stream
+            if (videoRef.current.srcObject) {
+                const stream = videoRef.current.srcObject;
+                stream.getTracks().forEach(track => track.stop());
+                videoRef.current.srcObject = null;
+            }
+            // Pause video if it's a file
+            if (!useCamera) {
+                try {
+                    videoRef.current.pause();
+                } catch {}
+            }
         }
         setRunning(false);
     }, [useCamera]);
@@ -382,11 +395,58 @@ export default function HighKnees({ user, onFinish }) {
     }, []);
 
     const reset = useCallback(async () => {
+        // Stop everything first
+        await stopEverything();
+
+        // Clear stored stream reference
+        if (streamRef.current) {
+            streamRef.current = null;
+        }
+
+        // Stop pose detection
+        if (poseRef.current) {
+            try {
+                await poseRef.current.close();
+            } catch (error) {
+                console.log('Error closing pose:', error);
+            }
+            poseRef.current = null;
+        }
+
+        // Ensure everything is stopped
         await stopEverything();
         setFile(null);
         setUseCamera(true);
         setSummary(null);
         poseScoresRef.current = [];
+
+        // Stop camera stream if it's running
+        if (videoRef.current && videoRef.current.srcObject) {
+            const stream = videoRef.current.srcObject;
+            if (stream) {
+                // @ts-ignore
+                stream.getTracks().forEach(track => track.stop());
+            }
+            videoRef.current.srcObject = null;
+        }
+
+        // Clear the video element and canvas
+        if (videoRef.current) {
+            videoRef.current.src = '';
+            videoRef.current.load();
+            videoRef.current.pause();
+            videoRef.current.currentTime = 0;
+            videoRef.current.removeAttribute('src');
+            videoRef.current.load();
+
+            if (canvasRef.current) {
+                const ctx = canvasRef.current.getContext('2d');
+                if (ctx) {
+                    ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+                }
+            }
+        }
+
         repTimestampsRef.current = [];
         pauseTimeRef.current = 0;
         setReps(0);
