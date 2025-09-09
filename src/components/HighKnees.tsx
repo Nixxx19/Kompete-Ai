@@ -363,7 +363,22 @@ export default function HighKnees({ user, onFinish }) {
             if (videoRef.current) {
                 videoRef.current.src = URL.createObjectURL(f);
             }
+            // Auto-scroll to bottom after video upload for consistent UX
+            setTimeout(() => {
+                window.scrollTo({
+                    top: document.documentElement.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 100);
         }
+    }, []);
+
+    const handleCameraSelect = useCallback(() => {
+        setUseCamera(true);
+    }, []);
+
+    const handleUploadSelect = useCallback(() => {
+        setUseCamera(false);
     }, []);
 
     const reset = useCallback(async () => {
@@ -437,7 +452,7 @@ export default function HighKnees({ user, onFinish }) {
     }, [showPersonalizedPlan]);
 
     return (
-        <><div className="min-h-screen bg-background overflow-hidden z-[-1]">
+        <><div className="min-h-screen bg-background overflow-y-auto z-[-1]">
             <div className="relative z-10">
 
                 <header className="border-b border-border/50 backdrop-blur-xl bg-background/80">
@@ -464,45 +479,183 @@ export default function HighKnees({ user, onFinish }) {
                     </div>
                 </header>
 
-                <div className={"flex justify-center items-center mt-6 px-[10rem]"}>
-                    <div>
-                        <label>
-                            <input
-                                type="radio"
-                                checked={useCamera}
-                                onChange={() => setUseCamera(true)} />{" "}
-                            Live Camera
-                        </label>
-                        <br />
-                        <label>
-                            <input
-                                type="radio"
-                                checked={!useCamera}
-                                onChange={() => setUseCamera(false)} />{" "}
-                            Upload Video
-                        </label>
+                {/* Premium Control Panel */}
+                <div className="px-[10rem] mt-6">
+                    <div className="text-center mb-8">
+                        <h3 className="text-2xl font-bold text-foreground mb-2">Exercise Control Panel</h3>
+                        <p className="text-muted-foreground">Choose your input method and control your session</p>
                     </div>
 
-                    {!useCamera && (
-                        <div>
-                            <input type="file" accept="video/*" onChange={handleFileSelect} />
-                        </div>
-                    )}
+                    <div className="grid md:grid-cols-2 gap-8 items-center">
+                        {/* Input Selection */}
+                        <div className="space-y-6">
+                            <h4 className="text-lg font-semibold text-foreground mb-4">Input Method</h4>
 
-                    <div style={{ marginLeft: "auto" }} className="flex gap-4">
-                        <button onClick={startSession} disabled={running}>
-                            Start
-                        </button>
-                        <button onClick={stopSession} disabled={!running}>
-                            Stop
-                        </button>
-                        <button onClick={reset}>Reset</button>
+                            {/* Premium Radio Buttons */}
+                            <div className="space-y-4">
+                                <label className="group cursor-pointer">
+                                    <div className={`flex items-center p-4 rounded-xl border-2 transition-all duration-300 ${
+                                        useCamera === true
+                                            ? 'border-primary bg-primary/10 shadow-lg shadow-primary/20'
+                                            : 'border-border/50 hover:border-primary/30 hover:bg-primary/5'
+                                    }`}>
+                                        <div className={`w-6 h-6 rounded-full border-2 mr-4 flex items-center justify-center transition-all duration-300 ${
+                                            useCamera === true
+                                                ? 'border-primary bg-primary'
+                                                : 'border-border/50 group-hover:border-primary/50'
+                                        }`}>
+                                            {useCamera === true && (
+                                                <div className="w-3 h-3 rounded-full bg-white animate-pulse"></div>
+                                            )}
+                                        </div>
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 rounded-lg bg-primary/20">
+                                                    <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                                    </svg>
+                                                </div>
+                                                <div>
+                                                    <p className="font-semibold text-foreground">Live Camera</p>
+                                                    <p className="text-sm text-muted-foreground">Real-time analysis</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input
+                                        type="radio"
+                                        checked={useCamera === true}
+                                        onChange={handleCameraSelect}
+                                        className="sr-only"
+                                    />
+                                </label>
+
+                                <label className="group cursor-pointer">
+                                    <div className={`flex items-center p-4 rounded-xl border-2 transition-all duration-300 ${
+                                        useCamera === false
+                                            ? 'border-primary bg-primary/10 shadow-lg shadow-primary/20'
+                                            : 'border-border/50 hover:border-primary/30 hover:bg-primary/5'
+                                    }`}>
+                                        <div className={`w-6 h-6 rounded-full border-2 mr-4 flex items-center justify-center transition-all duration-300 ${
+                                            useCamera === false
+                                                ? 'border-primary bg-primary'
+                                                : 'border-border/50 group-hover:border-primary/50'
+                                        }`}>
+                                            {useCamera === false && (
+                                                <div className="w-3 h-3 rounded-full bg-white animate-pulse"></div>
+                                            )}
+                                        </div>
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 rounded-lg bg-primary/20">
+                                                    <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                                    </svg>
+                                                </div>
+                                                <div className="flex-1">
+                                                    <p className="font-semibold text-foreground">Upload Video</p>
+                                                    <div className="flex items-center gap-2">
+                                                        <p className="text-sm text-muted-foreground">Analyze recorded video</p>
+                                                        {running && (
+                                                            <div className="flex items-center gap-1">
+                                                                <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></div>
+                                                                <span className="text-xs text-green-400 font-medium">Active</span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input
+                                        type="radio"
+                                        checked={useCamera === false}
+                                        onChange={handleUploadSelect}
+                                        className="sr-only"
+                                    />
+                                </label>
+                            </div>
+
+                            {/* File Upload */}
+                            {useCamera === false && !file && (
+                                <div className="mt-6">
+                                    <div className="relative">
+                                        <input
+                                            type="file"
+                                            accept="video/*"
+                                            onChange={handleFileSelect}
+                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                        />
+                                        <div className="border-2 border-dashed border-primary/30 rounded-xl p-6 text-center hover:border-primary/50 hover:bg-primary/5 transition-all duration-300">
+                                            <div className="p-3 rounded-full bg-primary/20 w-fit mx-auto mb-3">
+                                                <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                                </svg>
+                                            </div>
+                                            <p className="font-medium text-foreground">Click to upload video</p>
+                                            <p className="text-sm text-muted-foreground">MP4, MOV, AVI supported</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                        </div>
+
+                        {/* Session Controls */}
+                        <div className="space-y-6">
+                            <h4 className="text-lg font-semibold text-foreground mb-4">Session Controls</h4>
+
+                            <div className="grid grid-cols-1 gap-4">
+                                <Button
+                                    onClick={startSession}
+                                    disabled={running}
+                                    className="w-full h-14 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 rounded-full bg-white/20">
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </div>
+                                        <span>Start Session</span>
+                                    </div>
+                                </Button>
+
+                                <div className="grid grid-cols-2 gap-3">
+                                    <Button
+                                        onClick={stopSession}
+                                        disabled={!running}
+                                        variant="outline"
+                                        className="h-12 bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20 hover:border-red-500/50 font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-2 h-2 rounded-full bg-red-400"></div>
+                                            <span>Stop</span>
+                                        </div>
+                                    </Button>
+
+                                    <Button
+                                        onClick={reset}
+                                        variant="outline"
+                                        className="h-12 bg-gray-500/10 border-gray-500/30 text-gray-400 hover:bg-gray-500/20 hover:border-gray-500/50 font-semibold transition-all duration-300"
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                            </svg>
+                                            <span>Reset</span>
+                                        </div>
+                                    </Button>
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
                 </div>
 
-                <div className={"px-[10rem]   "}>
-                    <div className={"flex gap-10"}>
-                        <div className={"flex justify-center items-center mt-6"}
+                <div className={"px-[10rem] mt-10 mb-10"}>
+                    <div className={"flex gap-10 items-start"}>
+                        <div
                             style={{
                                 width: 800,
                                 height: 600,
@@ -517,7 +670,8 @@ export default function HighKnees({ user, onFinish }) {
                                 ref={videoRef}
                                 style={{ width: "100%", height: "100%", transform: "scaleX(-1)" }}
                                 playsInline
-                                muted />
+                                muted
+                            />
                             <canvas
                                 ref={canvasRef}
                                 style={{
@@ -527,29 +681,103 @@ export default function HighKnees({ user, onFinish }) {
                                     width: "100%",
                                     height: "100%",
                                     transform: "scaleX(-1)",
-                                }} />
+                                }}
+                            />
                         </div>
-                        <div className="text-2xl flex flex-col">
+                        <div className="flex-1 max-w-xl" style={{ height: "600px" }}>
                             {reps === 0 ? (
-                                <>
-                                    <p className="mb-3 font-bold">Instructions:</p>
-                                    <p>1. Start – Stand tall with feet hip-width apart, arms at sides.</p>
-                                    <p>2. Lift – Drive one knee up toward your chest while pumping opposite arm.</p>
-                                    <p>3. Switch – Quickly alternate knees, running in place at a fast pace.</p>
-                                </>
+                                <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-card/90 via-card/70 to-card/50 backdrop-blur-xl border border-border/40 shadow-2xl transition-all duration-500 h-full">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-accent/5"></div>
+
+                                    <div className="relative p-8 pb-12 h-full flex flex-col">
+                                        <div className="flex items-center gap-4 mb-12">
+                                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center shadow-lg">
+                                                <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <h3 className="text-xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">Instructions</h3>
+                                                <p className="text-sm text-muted-foreground mt-1">Follow these steps for proper form</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-10 flex-1">
+                                            <div className="group/step flex items-start gap-5 p-5 rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/25 hover:border-primary/40 hover:shadow-lg transition-all duration-300">
+                                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/80 text-white flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-lg">
+                                                    1
+                                                </div>
+                                                <div className="flex-1">
+                                                    <h4 className="font-semibold text-foreground mb-2 text-lg">Start Position</h4>
+                                                    <p className="text-sm text-muted-foreground leading-relaxed">
+                                                        Stand tall with feet hip-width apart, arms relaxed at your sides.
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <div className="group/step flex items-start gap-5 p-5 rounded-2xl bg-gradient-to-br from-accent/15 to-accent/5 border border-accent/25 hover:border-accent/40 hover:shadow-lg transition-all duration-300">
+                                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-accent to-accent/80 text-white flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-lg">
+                                                    2
+                                                </div>
+                                                <div className="flex-1">
+                                                    <h4 className="font-semibold text-foreground mb-2 text-lg">Lift</h4>
+                                                    <p className="text-sm text-muted-foreground leading-relaxed">
+                                                        Drive one knee up toward your chest while pumping the opposite arm.
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <div className="group/step flex items-start gap-5 p-5 rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/25 hover:border-primary/40 hover:shadow-lg transition-all duration-300">
+                                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/80 text-white flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-lg">
+                                                    3
+                                                </div>
+                                                <div className="flex-1">
+                                                    <h4 className="font-semibold text-foreground mb-2 text-lg">Switch</h4>
+                                                    <p className="text-sm text-muted-foreground leading-relaxed">
+                                                        Quickly alternate knees, running in place at a fast pace.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             ) : (
-                                <>
-                                    <p>Reps : {reps}</p>
-                                    <p className="mb-10">Time : {summary
-                                        ? `${summary.total_duration}s`
-                                        : startTimeRef.current
-                                            ? Math.round(performance.now() / 1000 - startTimeRef.current) + "s"
-                                            : "0s"}</p>
-                                </>
+                                <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-card/90 via-card/70 to-card/50 backdrop-blur-xl border border-border/40 shadow-2xl transition-all duration-500 max-w-md">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-accent/5"></div>
+
+                                    <div className="relative p-8 pb-12">
+                                        <div className="flex items-center gap-4 mb-8">
+                                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center shadow-lg">
+                                                <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <h3 className="text-xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">Live Stats</h3>
+                                                <p className="text-sm text-muted-foreground mt-1">Real-time performance metrics</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-5">
+                                            <div className="group/stat text-center p-6 rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/25 hover:border-primary/40 hover:shadow-lg transition-all duration-300">
+                                                <div className="text-3xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent mb-2">{reps}</div>
+                                                <div className="text-sm text-muted-foreground font-medium">Reps</div>
+                                            </div>
+                                            <div className="group/stat text-center p-6 rounded-2xl bg-gradient-to-br from-accent/15 to-accent/5 border border-accent/25 hover:border-accent/40 hover:shadow-lg transition-all duration-300">
+                                                <div className="text-3xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent mb-2">
+                                                    {summary
+                                                        ? `${summary.total_duration}s`
+                                                        : startTimeRef.current
+                                                            ? Math.round(performance.now() / 1000 - startTimeRef.current) + "s"
+                                                            : "0s"}
+                                                </div>
+                                                <div className="text-sm text-muted-foreground font-medium">Time</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             )}
                         </div>
-
-
                     </div>
                     {summary && (
 
