@@ -153,23 +153,23 @@ export const ExerciseSelector = ({ onExerciseSelect, selectedExercise }: Exercis
               style={{ animationDelay: `${index * 0.1}s` }}
               onClick={() => onExerciseSelect(exercise)}
             >
-              <Card className={`h-full bg-card p-4 hover:bg-secondary/40 transition-all duration-500 group-hover/item:shadow-xl rounded-lg ${
+              <Card className={`h-full bg-card p-3 hover:bg-secondary/40 transition-all duration-500 group-hover/item:shadow-xl rounded-lg ${
                 selectedExercise?.id === exercise.id
                   ? 'border-2 border-purple-800'
                   : 'border border-border/50'
               }`}>
                 <div className="absolute inset-0 bg-gradient-to-br from-transparent to-primary/5 rounded-lg opacity-0 group-hover/item:opacity-100 transition-opacity duration-500" />
                 <div className="relative z-10">
-                  <div className="flex items-start gap-4">
-                    <div className={`p-5 rounded-xl bg-${exercise.color}-500/20 text-${exercise.color}-400 transition-all duration-300`}>
+                  <div className="flex items-start gap-3">
+                    <div className={`p-3 rounded-lg bg-${exercise.color}-500/20 text-${exercise.color}-400 transition-all duration-300`}>
                       {React.cloneElement(exercise.icon as React.ReactElement, { 
-                        className: "w-8 h-8" 
+                        className: "w-9 h-9"
                       })}
                     </div>
                     
-                    <div className="flex-1 space-y-3">
+                    <div className="flex-1 space-y-2">
                       <div>
-                        <h4 className="text-lg font-bold text-foreground/90 mb-2">
+                        <h4 className="text-lg font-bold text-foreground/90 mb-1">
                           {exercise.name}
                         </h4>
                         <p className="text-sm text-muted-foreground leading-relaxed">
@@ -177,8 +177,8 @@ export const ExerciseSelector = ({ onExerciseSelect, selectedExercise }: Exercis
                         </p>
                       </div>
                       
-                      <div className="flex items-center gap-3 pt-2">
-                        <div className={`px-2 py-1 rounded-full text-xs font-semibold ${getDifficultyColor(exercise.difficulty)}`}>
+                      <div className="flex items-center gap-2 pt-1">
+                        <div className={`px-2 py-0.5 rounded-full text-xs font-semibold ${getDifficultyColor(exercise.difficulty)}`}>
                           {exercise.difficulty}
                         </div>
                         

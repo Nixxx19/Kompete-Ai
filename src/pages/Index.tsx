@@ -62,10 +62,10 @@ const Index = () => {
               </div>
 
               <nav className="hidden md:flex items-center gap-12">
-                <a href="#" className="nav-link text-sm text-muted-foreground hover:text-foreground">Dashboard</a>
-                <Link to="/exercise" className="nav-link text-sm text-muted-foreground hover:text-foreground">Exercise</Link>
-                <Link to="/drills" className="nav-link text-sm text-muted-foreground hover:text-foreground">Drill</Link>
-                <Link to="/analytics" className="nav-link text-sm text-muted-foreground hover:text-foreground">Analytics</Link>
+                <a href="#" className="nav-link text-base text-muted-foreground hover:text-foreground">Dashboard</a>
+                <Link to="/exercise" className="nav-link text-base text-muted-foreground hover:text-foreground">Exercise</Link>
+                <Link to="/drills" className="nav-link text-base text-muted-foreground hover:text-foreground">Drill</Link>
+                <Link to="/analytics" className="nav-link text-base text-muted-foreground hover:text-foreground">Analytics</Link>
                 <Button size="sm" className="btn-premium">
                   <Sparkles className="w-4 h-4 mr-2" />
                   Get Started
