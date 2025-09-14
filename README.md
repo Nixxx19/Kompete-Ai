@@ -61,3 +61,25 @@ KOMPTE AI is a cutting-edge performance analytics platform that leverages artifi
 - **Recharts** - Data visualization
 - **Framer Motion** - Smooth animations
 
+## 🚀 Quick Start
+
+### Prerequisites
+- Node.js 18+ 
+- npm or yarn package manager
+- Modern web browser with camera access
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-username/kompete-ai-website.git
+   cd kompete-ai-website
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+
