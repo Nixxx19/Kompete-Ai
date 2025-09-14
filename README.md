@@ -80,6 +80,11 @@ KOMPTE AI is a cutting-edge performance analytics platform that leverages artifi
    npm install
    ```
 
+   **Note**: This project uses MediaPipe for pose detection. The required MediaPipe packages are included in the dependencies:
+   - `@mediapipe/camera_utils`
+   - `@mediapipe/drawing_utils` 
+   - `@mediapipe/pose`
+
 3. **Set up environment variables**
    ```bash
    # Create .env.local file
