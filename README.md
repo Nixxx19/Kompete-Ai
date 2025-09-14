@@ -141,3 +141,8 @@ kompete-ai-website/
 └── tailwind.config.ts     # Tailwind configuration
 ```
 
+## 🔧 Configuration
+
+### API Keys
+The application requires a Google Gemini API key for video analysis:
+
