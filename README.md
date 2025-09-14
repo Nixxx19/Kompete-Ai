@@ -131,3 +131,13 @@ kompete-ai-website/
 │   ├── components/         # React components
 │   │   ├── ui/            # Reusable UI components
 │   │   ├── Exercise*.tsx  # Exercise-specific components
+│   │   └── *.tsx          # Feature components
+│   ├── pages/             # Page components
+│   ├── services/          # API services
+│   ├── hooks/             # Custom React hooks
+│   └── lib/               # Utility functions
+├── package.json           # Dependencies
+├── vite.config.ts         # Vite configuration
+└── tailwind.config.ts     # Tailwind configuration
+```
+
