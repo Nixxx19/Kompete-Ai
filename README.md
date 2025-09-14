@@ -83,3 +83,16 @@ KOMPTE AI is a cutting-edge performance analytics platform that leverages artifi
    yarn install
    ```
 
+3. **Set up environment variables**
+   ```bash
+   # Create .env.local file
+   VITE_GEMINI_API_KEY=your_gemini_api_key_here
+   ```
+
+4. **Start development server**
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
+
