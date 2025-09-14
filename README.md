@@ -96,3 +96,6 @@ KOMPTE AI is a cutting-edge performance analytics platform that leverages artifi
    yarn dev
    ```
 
+5. **Open your browser**
+   Navigate to `http://localhost:8080`
+
