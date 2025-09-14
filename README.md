@@ -59,7 +59,6 @@ KOMPTE AI is a cutting-edge performance analytics platform that leverages artifi
 - **shadcn/ui** - Modern component library
 - **Lucide React** - Beautiful icons
 - **Recharts** - Data visualization
-- **Framer Motion** - Smooth animations
 
 ## 🚀 Quick Start
 
