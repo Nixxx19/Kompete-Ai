@@ -96,26 +96,72 @@ KOMPTE AI is a cutting-edge performance analytics platform that leverages artifi
 
 ## 📱 Usage
 
-### Video Analysis
+### 🎯 Exercise Analysis
 1. Navigate to the **Exercise** page
-2. Enter player details (name, age, etc.)
-3. Select your exercise type
+2. Enter player details (name, age, height, weight, gender)
+3. Select your exercise type:
+   - **Jumping Jacks** - Full body cardio exercise
+   - **Push-ups** - Upper body strength training
+   - **Squats** - Lower body strength and stability
+   - **High Knees** - Cardio and leg strength builder
 4. Upload a video file (MP4, MOV, AVI)
 5. Wait for AI analysis to complete
 6. Review detailed insights and recommendations
 
-### Live Camera Analysis
+### 📹 Live Camera Analysis
 1. Go to **Live Camera** page
 2. Allow camera permissions
-3. Select your exercise
+3. Select your exercise (Jumping Jacks or Push-ups)
 4. Start real-time analysis
 5. Get instant feedback and corrections
+6. View live performance metrics
 
-### Analytics Dashboard
+### 🏸 Badminton Analysis
+1. Upload badminton video through Exercise page
+2. AI analyzes shot-by-shot performance
+3. Get detailed insights on:
+   - Shot types (smash, clear, drop, net shot, drive, lift, push, block)
+   - Trajectory classification
+   - Technique zones (forehand/backhand)
+   - Shuttle speed estimation
+   - Contact point analysis
+   - Player posture and balance
+   - Tactical patterns and shot selection
+
+### 🏃‍♂️ Drill Tracking
+1. Visit the **Drills** page
+2. Set up court calibration with 4 corner points
+3. Configure 3x3 grid zones
+4. Start drill tracking session
+5. Monitor movement patterns and zone coverage
+6. Get real-time statistics:
+   - Valid cycles completed
+   - Total moves and distance
+   - Average speed
+   - Session duration
+7. Export drill analysis data
+
+### 👥 Player Detection
+1. Access **Player Detection** feature
+2. Set up multi-player tracking
+3. Monitor individual player performance
+4. Generate heatmaps and movement analysis
+5. Export player-specific data
+
+### 📊 Analytics Dashboard
 1. Visit the **Analytics** page
-2. View performance trends
+2. View performance trends and charts
 3. Track progress over time
-4. Export data for further analysis
+4. Analyze form quality and stamina levels
+5. Review calorie burn and recovery metrics
+6. Export data for further analysis
+
+### 📈 Performance Insights
+- **Real-time Charts**: Reps over time, pose scores, activity levels
+- **Stamina Assessment**: Age and weight-based evaluation
+- **Calorie Tracking**: Dynamic calculation based on exercise type
+- **Form Analysis**: AI-powered technique evaluation
+- **Progress Visualization**: Performance trends and improvements
 
 ## 🏗️ Project Structure
 
@@ -124,16 +170,27 @@ kompete-ai-website/
 ├── public/                 # Static assets
 ├── src/
 │   ├── components/         # React components
-│   │   ├── ui/            # Reusable UI components
-│   │   ├── Exercise*.tsx  # Exercise-specific components
-│   │   └── *.tsx          # Feature components
+│   │   ├── ui/            # shadcn/ui components
+│   │   ├── Exercise*.tsx  # Exercise components
+│   │   ├── PerformanceInsights.tsx
+│   │   ├── PlayerDetection.tsx
+│   │   └── Utils.tsx
 │   ├── pages/             # Page components
+│   │   ├── Index.tsx
+│   │   ├── Exercise.tsx
+│   │   ├── LiveCamera.tsx
+│   │   ├── Drills.tsx
+│   │   └── AnalyticsGemini.tsx
 │   ├── services/          # API services
+│   │   └── geminiService.ts
 │   ├── hooks/             # Custom React hooks
-│   └── lib/               # Utility functions
+│   ├── lib/               # Utility functions
+│   ├── App.tsx            # Main app component
+│   └── main.tsx           # Entry point
 ├── package.json           # Dependencies
 ├── vite.config.ts         # Vite configuration
-└── tailwind.config.ts     # Tailwind configuration
+├── tailwind.config.ts     # Tailwind configuration
+└── index.html            # HTML entry point
 ```
 
 ## 🔧 Configuration
