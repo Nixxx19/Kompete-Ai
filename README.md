@@ -99,3 +99,26 @@ KOMPTE AI is a cutting-edge performance analytics platform that leverages artifi
 5. **Open your browser**
    Navigate to `http://localhost:8080`
 
+## 📱 Usage
+
+### Video Analysis
+1. Navigate to the **Exercise** page
+2. Enter player details (name, age, etc.)
+3. Select your exercise type
+4. Upload a video file (MP4, MOV, AVI)
+5. Wait for AI analysis to complete
+6. Review detailed insights and recommendations
+
+### Live Camera Analysis
+1. Go to **Live Camera** page
+2. Allow camera permissions
+3. Select your exercise
+4. Start real-time analysis
+5. Get instant feedback and corrections
+
+### Analytics Dashboard
+1. Visit the **Analytics** page
+2. View performance trends
+3. Track progress over time
+4. Export data for further analysis
+
