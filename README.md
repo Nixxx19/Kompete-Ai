@@ -122,3 +122,12 @@ KOMPTE AI is a cutting-edge performance analytics platform that leverages artifi
 3. Track progress over time
 4. Export data for further analysis
 
+## 🏗️ Project Structure
+
+```
+kompete-ai-website/
+├── public/                 # Static assets
+├── src/
+│   ├── components/         # React components
+│   │   ├── ui/            # Reusable UI components
+│   │   ├── Exercise*.tsx  # Exercise-specific components
