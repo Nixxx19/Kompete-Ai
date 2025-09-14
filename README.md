@@ -64,8 +64,8 @@ KOMPTE AI is a cutting-edge performance analytics platform that leverages artifi
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+ 
-- npm or yarn package manager
+- **JavaScript runtime** (Node.js, Bun, or Deno)
+- **npm** package manager
 - Modern web browser with camera access
 
 ### Installation
@@ -79,8 +79,6 @@ KOMPTE AI is a cutting-edge performance analytics platform that leverages artifi
 2. **Install dependencies**
    ```bash
    npm install
-   # or
-   yarn install
    ```
 
 3. **Set up environment variables**
@@ -92,8 +90,6 @@ KOMPTE AI is a cutting-edge performance analytics platform that leverages artifi
 4. **Start development server**
    ```bash
    npm run dev
-   # or
-   yarn dev
    ```
 
 5. **Open your browser**
@@ -151,4 +147,11 @@ The application requires a Google Gemini API key for video analysis:
    ```bash
    VITE_GEMINI_API_KEY=your_api_key_here
    ```
+
+### Camera Permissions
+For live analysis features, ensure your browser has camera access permissions.
+
+## 🚀 Deployment
+
+This project is deployed on Vercel. You can test the live application by visiting the deployed URL.
 
