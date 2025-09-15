@@ -1,9 +1,9 @@
-# KOMPTE AI - Performance Analytics Platform
+# KOMPTE AI - Badminton Performance Analytics
 
 <div align="center">
   <img src="public/favicon1.ico" alt="KOMPTE AI Logo" width="80" height="80">
   
-  **AI-Powered Exercise Analysis & Performance Tracking**
+  **AI-Powered Badminton Analysis & Performance Tracking**
   
   [![React](https://img.shields.io/badge/React-18.3.1-blue.svg)](https://reactjs.org/)
   [![TypeScript](https://img.shields.io/badge/TypeScript-5.5.3-blue.svg)](https://www.typescriptlang.org/)
@@ -13,31 +13,33 @@
 
 ## 🚀 Overview
 
-KOMPTE AI is a cutting-edge performance analytics platform that leverages artificial intelligence to analyze exercise videos and provide detailed insights for athletes and coaches. Built with modern web technologies, it offers real-time analysis, comprehensive performance tracking, and personalized recommendations.
+KOMPTE AI is a specialized badminton performance analytics platform that leverages artificial intelligence to analyze badminton videos and provide detailed insights for players and coaches. Built with modern web technologies, it offers shot-by-shot analysis, real-time performance tracking, and personalized coaching recommendations specifically designed for badminton.
 
 ## ✨ Features
 
 ### 🎯 Core Capabilities
-- **AI-Powered Video Analysis**: Upload exercise videos for detailed AI analysis using Google Gemini
+- **AI-Powered Badminton Analysis**: Upload badminton videos for detailed shot-by-shot analysis using Google Gemini
 - **Real-Time Performance Tracking**: Live camera analysis with instant feedback
-- **Multi-Exercise Support**: Jumping jacks, push-ups, squats, high knees, and more
+- **Shot Analysis**: Comprehensive analysis of all badminton shot types
 - **Professional Analytics**: Detailed form analysis, performance metrics, and coaching insights
-- **Player Detection**: Advanced computer vision for athlete identification and tracking
+- **Player Detection**: Advanced computer vision for player identification and tracking
+- **Drill Tracking**: Court-based movement analysis and drill performance
 
-### 🏃‍♂️ Supported Exercises
-- **Jumping Jacks**: Form analysis and repetition counting
-- **Push-ups**: Technique evaluation and performance tracking
-- **Squats**: Movement quality assessment
-- **High Knees**: Cardio exercise monitoring
-- **Badminton**: Shot-by-shot analysis with tactical insights
-- **Custom Drills**: Extensible framework for new exercises
+### 🏸 Badminton Features
+- **Shot Type Analysis**: Smash, clear, drop, net shot, drive, lift, push, block
+- **Trajectory Classification**: Defensive clear, attacking clear, drive, smash, drop, net-drop
+- **Technique Zones**: Forehand overhead, backhand underarm analysis
+- **Shuttle Speed Estimation**: Real-time speed calculation in km/h
+- **Contact Point Analysis**: Sweet spot, frame, off-center, top of strings
+- **Player Posture Assessment**: Ready stance, crouch, jump smash, off-balance detection
+- **Tactical Pattern Recognition**: Shot selection tendencies and strategic analysis
 
 ### 📊 Analytics & Insights
-- **Form Quality Assessment**: AI-powered technique evaluation
-- **Performance Metrics**: Speed, accuracy, and efficiency tracking
-- **Coaching Recommendations**: Personalized improvement suggestions
+- **Badminton-Specific Metrics**: Shot accuracy, rally analysis, court coverage
+- **Performance Tracking**: Speed, technique, and tactical analysis
+- **Coaching Recommendations**: Personalized badminton improvement suggestions
 - **Progress Visualization**: Charts and graphs for performance trends
-- **Calorie Estimation**: Activity-based calorie tracking
+- **Rally Analysis**: Complete rally breakdown with tactical insights
 
 ## 🛠️ Technology Stack
 
@@ -51,9 +53,8 @@ KOMPTE AI is a cutting-edge performance analytics platform that leverages artifi
 - **React Query 5.56.2** - Server state management
 
 ### AI & Computer Vision
-- **Google Gemini 1.5 Flash** - Video analysis and insights
-- **MediaPipe** - Pose detection and tracking
-- **Custom ML Models** - Exercise-specific analysis
+- **Google Gemini 1.5 Flash** - Badminton video analysis and shot insights
+- **MediaPipe** - Pose detection and player tracking
 
 ### UI Components
 - **shadcn/ui** - Modern component library
@@ -101,7 +102,7 @@ KOMPTE AI is a cutting-edge performance analytics platform that leverages artifi
 
 ## 📱 Usage
 
-### 🎯 Exercise Analysis
+### 🏸 Badminton Video Analysis
 1. Navigate to the **Exercise** page
 2. Enter player details (name, age, height, weight, gender)
 3. Select your exercise type:
@@ -113,7 +114,7 @@ KOMPTE AI is a cutting-edge performance analytics platform that leverages artifi
 5. Wait for AI analysis to complete
 6. Review detailed insights and recommendations
 
-### 📹 Live Camera Analysis
+### 📹 Live Badminton Analysis
 1. Go to **Live Camera** page
 2. Allow camera permissions
 3. Select your exercise (Jumping Jacks or Push-ups)
@@ -133,12 +134,12 @@ KOMPTE AI is a cutting-edge performance analytics platform that leverages artifi
    - Player posture and balance
    - Tactical patterns and shot selection
 
-### 🏃‍♂️ Drill Tracking
+### 🏃‍♂️ Badminton Drill Tracking
 1. Visit the **Drills** page
 2. Set up court calibration with 4 corner points
 3. Configure 3x3 grid zones
 4. Start drill tracking session
-5. Monitor movement patterns and zone coverage
+5. Monitor movement patterns and court coverage
 6. Get real-time statistics:
    - Valid cycles completed
    - Total moves and distance
@@ -146,27 +147,27 @@ KOMPTE AI is a cutting-edge performance analytics platform that leverages artifi
    - Session duration
 7. Export drill analysis data
 
-### 👥 Player Detection
+### 👥 Badminton Player Detection
 1. Access **Player Detection** feature
-2. Set up multi-player tracking
+2. Set up multi-player tracking for badminton
 3. Monitor individual player performance
 4. Generate heatmaps and movement analysis
 5. Export player-specific data
 
-### 📊 Analytics Dashboard
+### 📊 Badminton Analytics Dashboard
 1. Visit the **Analytics** page
-2. View performance trends and charts
-3. Track progress over time
-4. Analyze form quality and stamina levels
-5. Review calorie burn and recovery metrics
+2. View badminton performance trends and charts
+3. Track shot accuracy and technique over time
+4. Analyze rally patterns and tactical decisions
+5. Review court coverage and movement efficiency
 6. Export data for further analysis
 
-### 📈 Performance Insights
-- **Real-time Charts**: Reps over time, pose scores, activity levels
-- **Stamina Assessment**: Age and weight-based evaluation
-- **Calorie Tracking**: Dynamic calculation based on exercise type
-- **Form Analysis**: AI-powered technique evaluation
-- **Progress Visualization**: Performance trends and improvements
+### 📈 Badminton Performance Insights
+- **Shot Analysis Charts**: Shot type distribution, accuracy trends
+- **Rally Breakdown**: Complete rally analysis with tactical insights
+- **Technique Assessment**: AI-powered badminton technique evaluation
+- **Court Coverage**: Movement patterns and positioning analysis
+- **Tactical Patterns**: Shot selection tendencies and strategic analysis
 
 ## 🏗️ Project Structure
 
