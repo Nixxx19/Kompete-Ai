@@ -72,7 +72,7 @@ KOMPTE AI is a specialized badminton performance analytics platform that leverag
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-username/kompete-ai-website.git
+   git clone https://github.com/Nixxx19/kompete-Ai-Website.git
    cd kompete-ai-website
    ```
 
