@@ -11,7 +11,13 @@ You are a professional badminton coach and computer vision expert. Your task is 
 
 "Please upload a valid badminton video showing visible rallies or drills."
 
-If the video is valid, perform a detailed shot-by-shot, frame-level analysis. Format your response with bold headings and bullet points for each detail. For each shot, extract and return the following structured insights:
+If the video is valid, perform a detailed shot-by-shot, frame-level analysis. 
+
+IMPORTANT: Start your analysis with a shot count summary:
+**Total Shots Analyzed:**
+• [Number] shots detected in this video
+
+Then, for each shot, number them sequentially as "Shot 1:", "Shot 2:", "Shot 3:", etc. and extract the following structured insights:
 
 **Player Identity:**
 • Player 1 (near side) or Player 2 (far side)
@@ -43,7 +49,7 @@ If the video is valid, perform a detailed shot-by-shot, frame-level analysis. Fo
 **Improvement Suggestions:**
 • [specific coaching feedback]
 
-Repeat this analysis for every shot sequentially in the rally or drill.
+Repeat this analysis for every shot sequentially in the rally or drill, numbering each as "Shot X:".
 
 At the end of the video, provide a summary for each player, including:
 **Tactical Patterns:**
@@ -73,6 +79,13 @@ export interface ExerciseAnalysis {
 
 export const analyzeExerciseVideo = async (videoFile: File): Promise<ExerciseAnalysis> => {
   try {
+    // Check if API key is available
+    if (!GEMINI_API_KEY) {
+      throw new Error('Gemini API key not found. Please configure your API key.');
+    }
+    
+    console.log('Using Gemini API for analysis...');
+
     // Check file extension
     const fileNameParts = videoFile.name.split(".");
     if (fileNameParts.length < 2) {
@@ -111,40 +124,87 @@ export const analyzeExerciseVideo = async (videoFile: File): Promise<ExerciseAna
       ]
     };
 
-    // Make API call to Gemini
-    const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-      throw new Error(`API request failed: ${response.status}`);
-    }
-
-    const data = await response.json();
+    console.log('Sending request to Gemini API...');
     
-    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
-      throw new Error('No analysis result received from the API.');
-    }
-
-    const analysisText = data.candidates[0].content.parts[0].text;
+    // Retry mechanism for API calls
+    const maxRetries = 3;
+    let lastError;
     
-    return {
-      rawAnalysis: analysisText,
-      exerciseType: extractExerciseType(analysisText),
-      formQuality: extractFormQuality(analysisText),
-      performanceLevel: extractPerformanceLevel(analysisText),
-      calories: extractCalories(analysisText),
-      duration: extractDuration(analysisText),
-      recommendations: extractRecommendations(analysisText)
-    };
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`API attempt ${attempt}/${maxRetries}...`);
+        
+        // Make API call to Gemini
+        const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log('API Response received:', data);
+          
+          if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+            throw new Error('Invalid API response. No analysis content received.');
+          }
+
+          const analysisText = data.candidates[0].content.parts[0].text;
+          console.log('Analysis text from API:', analysisText);
+          
+          return {
+            rawAnalysis: analysisText,
+            exerciseType: extractExerciseType(analysisText),
+            formQuality: extractFormQuality(analysisText),
+            performanceLevel: extractPerformanceLevel(analysisText),
+            calories: extractCalories(analysisText),
+            duration: extractDuration(analysisText),
+            recommendations: extractRecommendations(analysisText)
+          };
+        } else {
+          const errorText = await response.text();
+          console.error(`API Error (attempt ${attempt}):`, response.status, errorText);
+          
+          // If it's a 503 error and we have retries left, wait and try again
+          if (response.status === 503 && attempt < maxRetries) {
+            const waitTime = attempt * 2000; // 2s, 4s, 6s
+            console.log(`Model overloaded. Waiting ${waitTime}ms before retry...`);
+            await new Promise(resolve => setTimeout(resolve, waitTime));
+            continue;
+          }
+          
+          lastError = new Error(`API request failed: ${response.status} - ${errorText}`);
+        }
+      } catch (error) {
+        console.error(`API attempt ${attempt} failed:`, error);
+        lastError = error;
+        
+        if (attempt < maxRetries) {
+          const waitTime = attempt * 1000; // 1s, 2s, 3s
+          console.log(`Waiting ${waitTime}ms before retry...`);
+          await new Promise(resolve => setTimeout(resolve, waitTime));
+        }
+      }
+    }
+    
+    // If all retries failed, throw the last error
+    throw lastError || new Error('All API attempts failed');
 
   } catch (error) {
     console.error('Analysis error:', error);
-    throw new Error(`Error during analysis: ${error.message}`);
+    
+    // Provide user-friendly error messages
+    if (error.message.includes('503')) {
+      throw new Error('The AI model is currently overloaded. Please try again in a few minutes. This is a temporary issue with Google\'s servers.');
+    } else if (error.message.includes('API key')) {
+      throw new Error('API key not found. Please check your configuration.');
+    } else if (error.message.includes('All API attempts failed')) {
+      throw new Error('Unable to connect to the AI service after multiple attempts. Please check your internet connection and try again.');
+    } else {
+      throw new Error(`Analysis failed: ${error.message}`);
+    }
   }
 };
 
@@ -220,92 +280,4 @@ const extractRecommendations = (text: string): string[] => {
   ];
 };
 
-// Mock analysis for development/testing
-export const mockAnalyzeExerciseVideo = async (videoFile: File): Promise<ExerciseAnalysis> => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 2000));
-  
-  return {
-    rawAnalysis: `**Player Identity:**
-• Player 1 (near side)
-
-**Shot Type:**
-• clear
-
-**Trajectory Classification:**
-• Defensive Clear
-
-**Technique Zone:**
-• Forehand – overhead
-
-**Estimated Shuttle Speed:**
-• 45 km/h
-
-**Contact Point on Racket:**
-• sweet spot
-
-**Player Posture at Contact:**
-• ready stance
-
-**Balance or Recovery Status:**
-• recovered well
-
-**Shot Quality:**
-• tight to net
-
-**Improvement Suggestions:**
-• Focus on better footwork positioning
-
-**Player Identity:**
-• Player 2 (far side)
-
-**Shot Type:**
-• smash
-
-**Trajectory Classification:**
-• Smash
-
-**Technique Zone:**
-• Forehand – overhead
-
-**Estimated Shuttle Speed:**
-• 120 km/h
-
-**Contact Point on Racket:**
-• sweet spot
-
-**Player Posture at Contact:**
-• jump smash posture
-
-**Balance or Recovery Status:**
-• recovered well
-
-**Shot Quality:**
-• attacking clear
-
-**Improvement Suggestions:**
-• Improve recovery after smash
-
-**Tactical Patterns:**
-• Good mix of defensive and attacking shots
-
-**Shot Selection Tendencies:**
-• Varied shot selection with good strategy
-
-**Strengths and Weaknesses:**
-• Strong overhead shots, good footwork
-
-**Final Coaching Suggestions:**
-• Continue working on shot variety and positioning`,
-    exerciseType: "Badminton",
-    formQuality: "tight to net",
-    performanceLevel: "Analyzed",
-    calories: "5",
-    duration: "6",
-    recommendations: [
-      "Focus on better footwork positioning",
-      "Improve recovery after smash",
-      "Continue working on shot variety and positioning"
-    ]
-  };
-};
+// Note: Mock analysis removed - using only real API data
