@@ -759,13 +759,12 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
         <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-green-500/15 to-transparent rounded-full blur-xl"></div>
         
         <CardHeader className="relative">
-          <CardTitle className="flex items-center gap-4 text-2xl font-bold bg-gradient-to-r from-primary via-accent to-green-400 bg-clip-text text-transparent group-hover:scale-105 transition-transform duration-300">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg shadow-primary/25 m-2">
-              <TargetIcon className="w-6 h-6 text-primary" />
+          <CardTitle className="flex items-center gap-5 text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent group-hover:scale-105 transition-transform duration-300">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 m-2">
+              <TargetIcon className="w-8 h-8 text-primary" />
             </div>
             <div>
-              <div>Shot {shot.shotNumber}</div>
-              <div className="text-sm text-muted-foreground font-normal">{shot.playerIdentity}</div>
+              <div className="tracking-wide">Shot {shot.shotNumber}</div>
             </div>
           </CardTitle>
         </CardHeader>
@@ -918,21 +917,16 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
         {/* Analysis Results Header */}
         <div className="text-center mb-12 animate-fade-in">
           <div className="flex items-center justify-center gap-4 mb-6">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center shadow-lg shadow-primary/25">
-              <Activity className="w-10 h-10 text-primary" />
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center shadow-lg shadow-primary/25">
+              <Activity className="w-6 h-6 text-primary" />
             </div>
-            <div>
-              <h2 className="text-4xl font-bold bg-gradient-to-r from-primary via-accent to-green-400 bg-clip-text text-transparent">
-                Shot Analysis
-              </h2>
-              <p className="text-lg text-muted-foreground mt-2">
-                {shots.length > 0 ? `${shots.length} shots analyzed` : 'AI-Powered Performance Insights'}
-              </p>
-            </div>
+            <h2 className="text-4xl font-bold bg-gradient-to-r from-primary via-accent to-green-400 bg-clip-text text-transparent">
+              Shot Analysis
+            </h2>
           </div>
           
-          {/* Toggle between structured and raw view */}
-          <div className="flex items-center justify-center gap-4">
+          {/* Toggle between structured and raw view - Hidden */}
+          {/* <div className="flex items-center justify-center gap-4">
             <Button
               variant={!showRawAnalysis ? "default" : "outline"}
               size="sm"
@@ -949,7 +943,7 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
             >
               Raw Analysis
             </Button>
-          </div>
+          </div> */}
         </div>
 
         {/* Shot Cards or Raw Analysis */}
