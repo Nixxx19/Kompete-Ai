@@ -332,7 +332,7 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
   );
 
   return (
-    <section className="py-20 px-6 bg-gradient-to-br from-background via-muted/20 to-background relative overflow-hidden">
+    <section className="pt-4 pb-20 px-6 bg-gradient-to-br from-background via-muted/20 to-background relative overflow-hidden">
       <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
       <div className="container mx-auto max-w-7xl relative">
         
