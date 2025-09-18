@@ -256,58 +256,68 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
         </CardHeader>
         
         <CardContent className="relative space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="text-blue-400 border-blue-400/30 bg-blue-400/10">
-                  Trajectory Classification
-                </Badge>
-                <span className="text-foreground font-medium">{shot.trajectoryClassification}</span>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="text-green-400 border-green-400/30 bg-green-400/10">
-                  Technique Zone
-                </Badge>
-                <span className="text-foreground font-medium">{shot.techniqueZone}</span>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="text-purple-400 border-purple-400/30 bg-purple-400/10">
-                  Estimated Shuttle Speed
-                </Badge>
-                <span className="text-foreground font-medium">{shot.estimatedShuttleSpeed}</span>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="text-orange-400 border-orange-400/30 bg-orange-400/10">
-                  Contact Point on Racket
-                </Badge>
-                <span className="text-foreground font-medium">{shot.contactPointOnRacket}</span>
-              </div>
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="text-blue-400 border-blue-400/30 bg-blue-400/10">
+                Player Identity
+              </Badge>
+              <span className="text-foreground font-medium">{shot.playerIdentity}</span>
             </div>
             
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="text-cyan-400 border-cyan-400/30 bg-cyan-400/10">
-                  Player Posture at Contact
-                </Badge>
-                <span className="text-foreground font-medium">{shot.playerPostureAtContact}</span>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="text-pink-400 border-pink-400/30 bg-pink-400/10">
-                  Balance or Recovery Status
-                </Badge>
-                <span className="text-foreground font-medium">{shot.balanceOrRecoveryStatus}</span>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="text-yellow-400 border-yellow-400/30 bg-yellow-400/10">
-                  Shot Quality
-                </Badge>
-                <span className="text-foreground font-medium">{shot.shotQuality}</span>
-              </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="text-green-400 border-green-400/30 bg-green-400/10">
+                Shot Type
+              </Badge>
+              <span className="text-foreground font-medium">{shot.shotType}</span>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="text-purple-400 border-purple-400/30 bg-purple-400/10">
+                Trajectory Classification
+              </Badge>
+              <span className="text-foreground font-medium">{shot.trajectoryClassification}</span>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="text-orange-400 border-orange-400/30 bg-orange-400/10">
+                Technique Zone
+              </Badge>
+              <span className="text-foreground font-medium">{shot.techniqueZone}</span>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="text-cyan-400 border-cyan-400/30 bg-cyan-400/10">
+                Estimated Shuttle Speed
+              </Badge>
+              <span className="text-foreground font-medium">{shot.estimatedShuttleSpeed}</span>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="text-pink-400 border-pink-400/30 bg-pink-400/10">
+                Contact Point on Racket
+              </Badge>
+              <span className="text-foreground font-medium">{shot.contactPointOnRacket}</span>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="text-yellow-400 border-yellow-400/30 bg-yellow-400/10">
+                Player Posture at Contact
+              </Badge>
+              <span className="text-foreground font-medium">{shot.playerPostureAtContact}</span>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="text-indigo-400 border-indigo-400/30 bg-indigo-400/10">
+                Balance or Recovery Status
+              </Badge>
+              <span className="text-foreground font-medium">{shot.balanceOrRecoveryStatus}</span>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="text-emerald-400 border-emerald-400/30 bg-emerald-400/10">
+                Shot Quality
+              </Badge>
+              <span className="text-foreground font-medium">{shot.shotQuality}</span>
             </div>
           </div>
         </CardContent>
