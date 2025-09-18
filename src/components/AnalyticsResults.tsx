@@ -760,7 +760,7 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
         
         <CardHeader className="relative">
           <CardTitle className="flex items-center gap-4 text-2xl font-bold bg-gradient-to-r from-primary via-accent to-green-400 bg-clip-text text-transparent group-hover:scale-105 transition-transform duration-300">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg shadow-primary/25">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg shadow-primary/25 m-2">
               <TargetIcon className="w-6 h-6 text-primary" />
             </div>
             <div>
