@@ -77,113 +77,279 @@ const parseShotsFromAnalysis = (analysisText: string): ShotAnalysis[] => {
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
         
+        // Debug: log each line being processed
+        if (line.includes('**') && line.includes(':')) {
+          console.log("Processing line:", line);
+        }
+        
         // Check if line contains field header and extract value from same line or next line
         if (line.includes('**Player Identity:**')) {
-          // Try to extract from same line first
-          const sameLineMatch = line.match(/\*\*Player Identity:\*\*\s*•\s*(.+)/);
-          if (sameLineMatch) {
-            shot.playerIdentity = sameLineMatch[1].replace(/\*\*/g, '').trim();
-          } else {
+          // Try multiple patterns
+          let value = '';
+          const patterns = [
+            /\*\*Player Identity:\*\*\s*•\s*(.+)/,
+            /\*\*Player Identity:\*\*\s*(.+)/,
+            /Player Identity:\s*•\s*(.+)/,
+            /Player Identity:\s*(.+)/
+          ];
+          
+          for (const pattern of patterns) {
+            const match = line.match(pattern);
+            if (match) {
+              value = match[1].replace(/\*\*/g, '').trim();
+              break;
+            }
+          }
+          
+          if (!value) {
             // Fallback to next line
             const nextLine = lines[i + 1]?.trim();
-            if (nextLine && nextLine.startsWith('•')) {
-              shot.playerIdentity = nextLine.replace('•', '').replace(/\*\*/g, '').trim();
+            if (nextLine && (nextLine.startsWith('•') || nextLine.includes(':'))) {
+              value = nextLine.replace(/^•\s*/, '').replace(/\*\*/g, '').trim();
             }
           }
+          
+          shot.playerIdentity = value;
+          console.log("Player Identity extracted:", shot.playerIdentity);
         } else if (line.includes('**Shot Type:**')) {
-          const sameLineMatch = line.match(/\*\*Shot Type:\*\*\s*•\s*(.+)/);
-          if (sameLineMatch) {
-            shot.shotType = sameLineMatch[1].replace(/\*\*/g, '').trim();
-          } else {
-            const nextLine = lines[i + 1]?.trim();
-            if (nextLine && nextLine.startsWith('•')) {
-              shot.shotType = nextLine.replace('•', '').replace(/\*\*/g, '').trim();
+          let value = '';
+          const patterns = [
+            /\*\*Shot Type:\*\*\s*•\s*(.+)/,
+            /\*\*Shot Type:\*\*\s*(.+)/,
+            /Shot Type:\s*•\s*(.+)/,
+            /Shot Type:\s*(.+)/
+          ];
+          
+          for (const pattern of patterns) {
+            const match = line.match(pattern);
+            if (match) {
+              value = match[1].replace(/\*\*/g, '').trim();
+              break;
             }
           }
+          
+          if (!value) {
+            const nextLine = lines[i + 1]?.trim();
+            if (nextLine && (nextLine.startsWith('•') || nextLine.includes(':'))) {
+              value = nextLine.replace(/^•\s*/, '').replace(/\*\*/g, '').trim();
+            }
+          }
+          
+          shot.shotType = value;
+          console.log("Shot Type extracted:", shot.shotType);
         } else if (line.includes('**Trajectory Classification:**')) {
-          const sameLineMatch = line.match(/\*\*Trajectory Classification:\*\*\s*•\s*(.+)/);
-          if (sameLineMatch) {
-            shot.trajectoryClassification = sameLineMatch[1].replace(/\*\*/g, '').trim();
-          } else {
-            const nextLine = lines[i + 1]?.trim();
-            if (nextLine && nextLine.startsWith('•')) {
-              shot.trajectoryClassification = nextLine.replace('•', '').replace(/\*\*/g, '').trim();
+          let value = '';
+          const patterns = [
+            /\*\*Trajectory Classification:\*\*\s*•\s*(.+)/,
+            /\*\*Trajectory Classification:\*\*\s*(.+)/,
+            /Trajectory Classification:\s*•\s*(.+)/,
+            /Trajectory Classification:\s*(.+)/
+          ];
+          
+          for (const pattern of patterns) {
+            const match = line.match(pattern);
+            if (match) {
+              value = match[1].replace(/\*\*/g, '').trim();
+              break;
             }
           }
+          
+          if (!value) {
+            const nextLine = lines[i + 1]?.trim();
+            if (nextLine && (nextLine.startsWith('•') || nextLine.includes(':'))) {
+              value = nextLine.replace(/^•\s*/, '').replace(/\*\*/g, '').trim();
+            }
+          }
+          
+          shot.trajectoryClassification = value;
+          console.log("Trajectory Classification extracted:", shot.trajectoryClassification);
         } else if (line.includes('**Technique Zone:**')) {
-          const sameLineMatch = line.match(/\*\*Technique Zone:\*\*\s*•\s*(.+)/);
-          if (sameLineMatch) {
-            shot.techniqueZone = sameLineMatch[1].replace(/\*\*/g, '').trim();
-          } else {
-            const nextLine = lines[i + 1]?.trim();
-            if (nextLine && nextLine.startsWith('•')) {
-              shot.techniqueZone = nextLine.replace('•', '').replace(/\*\*/g, '').trim();
+          let value = '';
+          const patterns = [
+            /\*\*Technique Zone:\*\*\s*•\s*(.+)/,
+            /\*\*Technique Zone:\*\*\s*(.+)/,
+            /Technique Zone:\s*•\s*(.+)/,
+            /Technique Zone:\s*(.+)/
+          ];
+          
+          for (const pattern of patterns) {
+            const match = line.match(pattern);
+            if (match) {
+              value = match[1].replace(/\*\*/g, '').trim();
+              break;
             }
           }
+          
+          if (!value) {
+            const nextLine = lines[i + 1]?.trim();
+            if (nextLine && (nextLine.startsWith('•') || nextLine.includes(':'))) {
+              value = nextLine.replace(/^•\s*/, '').replace(/\*\*/g, '').trim();
+            }
+          }
+          
+          shot.techniqueZone = value;
+          console.log("Technique Zone extracted:", shot.techniqueZone);
         } else if (line.includes('**Estimated Shuttle Speed:**')) {
-          const sameLineMatch = line.match(/\*\*Estimated Shuttle Speed:\*\*\s*•\s*(.+)/);
-          if (sameLineMatch) {
-            shot.estimatedShuttleSpeed = sameLineMatch[1].replace(/\*\*/g, '').trim();
-          } else {
-            const nextLine = lines[i + 1]?.trim();
-            if (nextLine && nextLine.startsWith('•')) {
-              shot.estimatedShuttleSpeed = nextLine.replace('•', '').replace(/\*\*/g, '').trim();
+          let value = '';
+          const patterns = [
+            /\*\*Estimated Shuttle Speed:\*\*\s*•\s*(.+)/,
+            /\*\*Estimated Shuttle Speed:\*\*\s*(.+)/,
+            /Estimated Shuttle Speed:\s*•\s*(.+)/,
+            /Estimated Shuttle Speed:\s*(.+)/
+          ];
+          
+          for (const pattern of patterns) {
+            const match = line.match(pattern);
+            if (match) {
+              value = match[1].replace(/\*\*/g, '').trim();
+              break;
             }
           }
+          
+          if (!value) {
+            const nextLine = lines[i + 1]?.trim();
+            if (nextLine && (nextLine.startsWith('•') || nextLine.includes(':'))) {
+              value = nextLine.replace(/^•\s*/, '').replace(/\*\*/g, '').trim();
+            }
+          }
+          
+          shot.estimatedShuttleSpeed = value;
+          console.log("Estimated Shuttle Speed extracted:", shot.estimatedShuttleSpeed);
         } else if (line.includes('**Contact Point on Racket:**')) {
-          const sameLineMatch = line.match(/\*\*Contact Point on Racket:\*\*\s*•\s*(.+)/);
-          if (sameLineMatch) {
-            shot.contactPointOnRacket = sameLineMatch[1].replace(/\*\*/g, '').trim();
-          } else {
-            const nextLine = lines[i + 1]?.trim();
-            if (nextLine && nextLine.startsWith('•')) {
-              shot.contactPointOnRacket = nextLine.replace('•', '').replace(/\*\*/g, '').trim();
+          let value = '';
+          const patterns = [
+            /\*\*Contact Point on Racket:\*\*\s*•\s*(.+)/,
+            /\*\*Contact Point on Racket:\*\*\s*(.+)/,
+            /Contact Point on Racket:\s*•\s*(.+)/,
+            /Contact Point on Racket:\s*(.+)/
+          ];
+          
+          for (const pattern of patterns) {
+            const match = line.match(pattern);
+            if (match) {
+              value = match[1].replace(/\*\*/g, '').trim();
+              break;
             }
           }
+          
+          if (!value) {
+            const nextLine = lines[i + 1]?.trim();
+            if (nextLine && (nextLine.startsWith('•') || nextLine.includes(':'))) {
+              value = nextLine.replace(/^•\s*/, '').replace(/\*\*/g, '').trim();
+            }
+          }
+          
+          shot.contactPointOnRacket = value;
+          console.log("Contact Point on Racket extracted:", shot.contactPointOnRacket);
         } else if (line.includes('**Player Posture at Contact:**')) {
-          const sameLineMatch = line.match(/\*\*Player Posture at Contact:\*\*\s*•\s*(.+)/);
-          if (sameLineMatch) {
-            shot.playerPostureAtContact = sameLineMatch[1].replace(/\*\*/g, '').trim();
-          } else {
-            const nextLine = lines[i + 1]?.trim();
-            if (nextLine && nextLine.startsWith('•')) {
-              shot.playerPostureAtContact = nextLine.replace('•', '').replace(/\*\*/g, '').trim();
+          let value = '';
+          const patterns = [
+            /\*\*Player Posture at Contact:\*\*\s*•\s*(.+)/,
+            /\*\*Player Posture at Contact:\*\*\s*(.+)/,
+            /Player Posture at Contact:\s*•\s*(.+)/,
+            /Player Posture at Contact:\s*(.+)/
+          ];
+          
+          for (const pattern of patterns) {
+            const match = line.match(pattern);
+            if (match) {
+              value = match[1].replace(/\*\*/g, '').trim();
+              break;
             }
           }
+          
+          if (!value) {
+            const nextLine = lines[i + 1]?.trim();
+            if (nextLine && (nextLine.startsWith('•') || nextLine.includes(':'))) {
+              value = nextLine.replace(/^•\s*/, '').replace(/\*\*/g, '').trim();
+            }
+          }
+          
+          shot.playerPostureAtContact = value;
+          console.log("Player Posture at Contact extracted:", shot.playerPostureAtContact);
         } else if (line.includes('**Balance or Recovery Status:**')) {
-          const sameLineMatch = line.match(/\*\*Balance or Recovery Status:\*\*\s*•\s*(.+)/);
-          if (sameLineMatch) {
-            shot.balanceOrRecoveryStatus = sameLineMatch[1].replace(/\*\*/g, '').trim();
-          } else {
-            const nextLine = lines[i + 1]?.trim();
-            if (nextLine && nextLine.startsWith('•')) {
-              shot.balanceOrRecoveryStatus = nextLine.replace('•', '').replace(/\*\*/g, '').trim();
+          let value = '';
+          const patterns = [
+            /\*\*Balance or Recovery Status:\*\*\s*•\s*(.+)/,
+            /\*\*Balance or Recovery Status:\*\*\s*(.+)/,
+            /Balance or Recovery Status:\s*•\s*(.+)/,
+            /Balance or Recovery Status:\s*(.+)/
+          ];
+          
+          for (const pattern of patterns) {
+            const match = line.match(pattern);
+            if (match) {
+              value = match[1].replace(/\*\*/g, '').trim();
+              break;
             }
           }
+          
+          if (!value) {
+            const nextLine = lines[i + 1]?.trim();
+            if (nextLine && (nextLine.startsWith('•') || nextLine.includes(':'))) {
+              value = nextLine.replace(/^•\s*/, '').replace(/\*\*/g, '').trim();
+            }
+          }
+          
+          shot.balanceOrRecoveryStatus = value;
+          console.log("Balance or Recovery Status extracted:", shot.balanceOrRecoveryStatus);
         } else if (line.includes('**Shot Quality:**')) {
-          const sameLineMatch = line.match(/\*\*Shot Quality:\*\*\s*•\s*(.+)/);
-          if (sameLineMatch) {
-            shot.shotQuality = sameLineMatch[1].replace(/\*\*/g, '').trim();
-          } else {
-            const nextLine = lines[i + 1]?.trim();
-            if (nextLine && nextLine.startsWith('•')) {
-              shot.shotQuality = nextLine.replace('•', '').replace(/\*\*/g, '').trim();
+          let value = '';
+          const patterns = [
+            /\*\*Shot Quality:\*\*\s*•\s*(.+)/,
+            /\*\*Shot Quality:\*\*\s*(.+)/,
+            /Shot Quality:\s*•\s*(.+)/,
+            /Shot Quality:\s*(.+)/
+          ];
+          
+          for (const pattern of patterns) {
+            const match = line.match(pattern);
+            if (match) {
+              value = match[1].replace(/\*\*/g, '').trim();
+              break;
             }
           }
+          
+          if (!value) {
+            const nextLine = lines[i + 1]?.trim();
+            if (nextLine && (nextLine.startsWith('•') || nextLine.includes(':'))) {
+              value = nextLine.replace(/^•\s*/, '').replace(/\*\*/g, '').trim();
+            }
+          }
+          
+          shot.shotQuality = value;
+          console.log("Shot Quality extracted:", shot.shotQuality);
         } else if (line.includes('**Improvement Suggestions:**')) {
-          const sameLineMatch = line.match(/\*\*Improvement Suggestions:\*\*\s*•\s*(.+)/);
-          if (sameLineMatch) {
-            shot.improvementSuggestions = sameLineMatch[1].replace(/\*\*/g, '').trim();
-          } else {
-            const nextLine = lines[i + 1]?.trim();
-            if (nextLine && nextLine.startsWith('•')) {
-              shot.improvementSuggestions = nextLine.replace('•', '').replace(/\*\*/g, '').trim();
+          let value = '';
+          const patterns = [
+            /\*\*Improvement Suggestions:\*\*\s*•\s*(.+)/,
+            /\*\*Improvement Suggestions:\*\*\s*(.+)/,
+            /Improvement Suggestions:\s*•\s*(.+)/,
+            /Improvement Suggestions:\s*(.+)/
+          ];
+          
+          for (const pattern of patterns) {
+            const match = line.match(pattern);
+            if (match) {
+              value = match[1].replace(/\*\*/g, '').trim();
+              break;
             }
           }
+          
+          if (!value) {
+            const nextLine = lines[i + 1]?.trim();
+            if (nextLine && (nextLine.startsWith('•') || nextLine.includes(':'))) {
+              value = nextLine.replace(/^•\s*/, '').replace(/\*\*/g, '').trim();
+            }
+          }
+          
+          shot.improvementSuggestions = value;
+          console.log("Improvement Suggestions extracted:", shot.improvementSuggestions);
         }
       }
 
       console.log("Created shot object:", shot);
+      console.log("Raw section being parsed:", trimmedSection.substring(0, 500));
 
       // Add shot if it has meaningful data
       if (shot.playerIdentity || shot.shotType || shot.trajectoryClassification) {
