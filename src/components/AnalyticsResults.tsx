@@ -593,10 +593,10 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
 
   // Player Summary Component
   const PlayerSummaryCard = ({ playerName, stats, index }: { playerName: string; stats: any; index: number }) => (
-    <Card className="group relative overflow-hidden hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-br from-card via-card/95 to-card/80 backdrop-blur-xl animate-fade-in" style={{animationDelay: `${index * 150}ms`}}>
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent"></div>
-      <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-accent/20 to-transparent rounded-full blur-xl animate-pulse"></div>
-      <div className="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr from-green-500/15 to-transparent rounded-full blur-lg"></div>
+    <Card className="group relative overflow-hidden hover:shadow-2xl transition-all duration-300 border border-primary/20 bg-gradient-to-br from-card/95 via-card/90 to-card/85 backdrop-blur-xl animate-fade-in shadow-lg shadow-primary/10" style={{animationDelay: `${index * 150}ms`}}>
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent"></div>
+      <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-accent/30 to-transparent rounded-full blur-xl animate-pulse"></div>
+      <div className="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr from-green-500/20 to-transparent rounded-full blur-lg"></div>
       
       <CardHeader className="relative pb-3">
         <CardTitle className="flex items-center gap-3 text-lg font-bold bg-gradient-to-r from-primary via-accent to-green-400 bg-clip-text text-transparent">
@@ -613,21 +613,21 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
       <CardContent className="relative space-y-4">
         {/* Key Stats */}
         <div className="grid grid-cols-2 gap-3">
-          <div className="text-center p-3 rounded-lg bg-gradient-to-br from-blue-500/10 to-blue-600/10 border border-blue-500/20">
-            <div className="text-xl font-bold text-blue-400">{stats.totalShots}</div>
-            <div className="text-xs text-muted-foreground">Total Shots</div>
+          <div className="text-center p-4 rounded-lg bg-gradient-to-br from-blue-500/20 to-blue-600/15 border-2 border-blue-500/40 shadow-md shadow-blue-500/20">
+            <div className="text-xl font-bold text-blue-300">{stats.totalShots}</div>
+            <div className="text-xs text-blue-200 font-medium">Total Shots</div>
           </div>
-          <div className="text-center p-3 rounded-lg bg-gradient-to-br from-green-500/10 to-green-600/10 border border-green-500/20">
-            <div className="text-xl font-bold text-green-400">{stats.avgShuttleSpeed} km/h</div>
-            <div className="text-xs text-muted-foreground">Avg Speed</div>
+          <div className="text-center p-4 rounded-lg bg-gradient-to-br from-green-500/20 to-green-600/15 border-2 border-green-500/40 shadow-md shadow-green-500/20">
+            <div className="text-xl font-bold text-green-300">{stats.avgShuttleSpeed} km/h</div>
+            <div className="text-xs text-green-200 font-medium">Avg Speed</div>
           </div>
-          <div className="text-center p-3 rounded-lg bg-gradient-to-br from-purple-500/10 to-purple-600/10 border border-purple-500/20">
-            <div className="text-xl font-bold text-purple-400">{Object.keys(stats.shotTypes).length}</div>
-            <div className="text-xs text-muted-foreground">Shot Types</div>
+          <div className="text-center p-4 rounded-lg bg-gradient-to-br from-purple-500/20 to-purple-600/15 border-2 border-purple-500/40 shadow-md shadow-purple-500/20">
+            <div className="text-xl font-bold text-purple-300">{Object.keys(stats.shotTypes).length}</div>
+            <div className="text-xs text-purple-200 font-medium">Shot Types</div>
           </div>
-          <div className="text-center p-3 rounded-lg bg-gradient-to-br from-orange-500/10 to-orange-600/10 border border-orange-500/20">
-            <div className="text-xl font-bold text-orange-400">{Object.keys(stats.techniqueZones).length}</div>
-            <div className="text-xs text-muted-foreground">Technique Zones</div>
+          <div className="text-center p-4 rounded-lg bg-gradient-to-br from-orange-500/20 to-orange-600/15 border-2 border-orange-500/40 shadow-md shadow-orange-500/20">
+            <div className="text-xl font-bold text-orange-300">{Object.keys(stats.techniqueZones).length}</div>
+            <div className="text-xs text-orange-200 font-medium">Technique Zones</div>
           </div>
         </div>
 
@@ -637,7 +637,7 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
             <h4 className="text-sm font-semibold text-foreground">Shot Types</h4>
             <div className="flex flex-wrap gap-1">
               {Object.entries(stats.shotTypes).map(([shotType, count]) => (
-                <Badge key={shotType} variant="outline" className="text-xs text-blue-400 border-blue-400/30 bg-blue-400/10 px-2 py-1">
+                <Badge key={shotType} variant="outline" className="text-xs text-blue-300 border-blue-400/50 bg-blue-500/20 px-3 py-1 font-medium">
                   {shotType} ({count as number})
                 </Badge>
               ))}
@@ -651,7 +651,7 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
             <h4 className="text-sm font-semibold text-foreground">Trajectories</h4>
             <div className="flex flex-wrap gap-1">
               {Object.entries(stats.trajectoryClassifications).map(([trajectory, count]) => (
-                <Badge key={trajectory} variant="outline" className="text-xs text-green-400 border-green-400/30 bg-green-400/10 px-2 py-1">
+                <Badge key={trajectory} variant="outline" className="text-xs text-green-300 border-green-400/50 bg-green-500/20 px-3 py-1 font-medium">
                   {trajectory} ({count as number})
                 </Badge>
               ))}
@@ -665,7 +665,7 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
             <h4 className="text-sm font-semibold text-foreground">Shot Quality</h4>
             <div className="flex flex-wrap gap-1">
               {Object.entries(stats.shotQualities).map(([quality, count]) => (
-                <Badge key={quality} variant="outline" className="text-xs text-purple-400 border-purple-400/30 bg-purple-400/10 px-2 py-1">
+                <Badge key={quality} variant="outline" className="text-xs text-purple-300 border-purple-400/50 bg-purple-500/20 px-3 py-1 font-medium">
                   {quality} ({count as number})
                 </Badge>
               ))}
@@ -1039,9 +1039,25 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
           </CardContent>
         </Card>
 
-        {/* Player Summary Section */}
+        {/* Player Summary Toggle Button */}
         {Object.keys(playerStats).length > 0 && (
-          <Card className="group relative overflow-hidden hover:shadow-2xl transition-all duration-700 border-0 bg-gradient-to-br from-card via-card/95 to-card/80 backdrop-blur-xl animate-fade-in mt-12">
+          <div className="flex justify-center mt-12">
+            <Button
+              onClick={() => setShowPlayerSummary(!showPlayerSummary)}
+              className="group relative overflow-hidden bg-gradient-to-r from-primary via-accent to-purple-500 hover:from-primary/90 hover:via-accent/90 hover:to-purple-500/90 transition-all duration-500 px-8 py-4 text-lg font-semibold hover:shadow-xl hover:shadow-primary/25 hover:shadow-2xl hover:shadow-primary/40"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <Users className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform duration-300" />
+              <span className="relative z-10">
+                {showPlayerSummary ? 'Hide Player Performance Summary' : 'Show Player Performance Summary'}
+              </span>
+            </Button>
+          </div>
+        )}
+
+        {/* Player Summary Section */}
+        {Object.keys(playerStats).length > 0 && showPlayerSummary && (
+          <Card className="group relative overflow-hidden hover:shadow-2xl transition-all duration-700 border-0 bg-gradient-to-br from-card via-card/95 to-card/80 backdrop-blur-xl animate-fade-in mt-8">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent"></div>
             <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-green-500/20 to-transparent rounded-full blur-3xl animate-pulse"></div>
             <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-purple-500/15 to-transparent rounded-full blur-2xl"></div>
@@ -1049,45 +1065,30 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
             <CardHeader className="relative">
               <div className="text-center">
                 <div className="flex items-center justify-center gap-4 mb-6">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500/30 to-purple-500/30 flex items-center justify-center shadow-lg shadow-green-500/25">
-                    <Users className="w-10 h-10 text-green-300" />
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center shadow-lg shadow-primary/25">
+                    <Users className="w-10 h-10 text-primary" />
                   </div>
                   <div>
-                    <h2 className="text-4xl font-bold bg-gradient-to-r from-green-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
+                    <h2 className="text-4xl font-bold bg-gradient-to-r from-primary via-accent to-green-400 bg-clip-text text-transparent">
                       Player Performance Summary
                     </h2>
                     <p className="text-lg text-muted-foreground font-normal mt-2">Comprehensive analysis of each player's performance</p>
                   </div>
                 </div>
-                
-                <div className="flex justify-center">
-                  <Button
-                    onClick={() => setShowPlayerSummary(!showPlayerSummary)}
-                    className="group relative overflow-hidden bg-gradient-to-r from-green-500 via-purple-500 to-blue-500 hover:from-green-500/90 hover:via-purple-500/90 hover:to-blue-500/90 transition-all duration-500 px-8 py-4 text-lg font-semibold hover:shadow-xl hover:shadow-green-500/25 hover:shadow-2xl hover:shadow-green-500/40"
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                    <Users className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform duration-300" />
-                    <span className="relative z-10">
-                      {showPlayerSummary ? 'Hide Player Performance Summary' : 'Show Player Performance Summary'}
-                    </span>
-                  </Button>
-                </div>
               </div>
             </CardHeader>
 
             <CardContent className="relative">
-              {showPlayerSummary && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {Object.entries(playerStats).map(([playerName, stats], index) => (
-                    <PlayerSummaryCard 
-                      key={playerName} 
-                      playerName={playerName} 
-                      stats={stats} 
-                      index={index} 
-                    />
-                  ))}
-                </div>
-              )}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {Object.entries(playerStats).map(([playerName, stats], index) => (
+                  <PlayerSummaryCard 
+                    key={playerName} 
+                    playerName={playerName} 
+                    stats={stats} 
+                    index={index} 
+                  />
+                ))}
+              </div>
             </CardContent>
           </Card>
         )}
