@@ -401,9 +401,127 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
     }
   };
 
+  // Extract detailed player summaries from raw analysis
+  const extractDetailedPlayerSummaries = (rawAnalysis: string) => {
+    const summaries: { [key: string]: any } = {};
+    
+    console.log("Raw analysis for parsing:", rawAnalysis.substring(0, 1000));
+    
+    // Look for Player 1 and Player 2 summary patterns with more flexible matching
+    const player1Match = rawAnalysis.match(/Player 1 Summary:([\s\S]*?)(?=Player 2 Summary:|$)/i);
+    const player2Match = rawAnalysis.match(/Player 2 Summary:([\s\S]*?)(?=Player \d+ Summary:|$)/i);
+    
+    console.log("Player 1 match:", player1Match ? player1Match[1].substring(0, 200) : "No match");
+    console.log("Player 2 match:", player2Match ? player2Match[1].substring(0, 200) : "No match");
+    
+    if (player1Match) {
+      summaries['Player 1'] = parsePlayerSummary(player1Match[1]);
+    }
+    if (player2Match) {
+      summaries['Player 2'] = parsePlayerSummary(player2Match[1]);
+    }
+    
+    // Also try to match with the actual player names from shots
+    shots.forEach(shot => {
+      const playerName = shot.playerIdentity;
+      if (playerName && !summaries[playerName]) {
+        // Try to find summary for this specific player name
+        const playerMatch = rawAnalysis.match(new RegExp(`${playerName} Summary:([\\s\\S]*?)(?=\\w+ Summary:|$)`, 'i'));
+        if (playerMatch) {
+          summaries[playerName] = parsePlayerSummary(playerMatch[1]);
+        }
+      }
+    });
+    
+    // Map Player 1/Player 2 to actual player names from shots
+    const playerNames = [...new Set(shots.map(shot => shot.playerIdentity).filter(Boolean))];
+    if (playerNames.length >= 1 && summaries['Player 1']) {
+      summaries[playerNames[0]] = summaries['Player 1'];
+    }
+    if (playerNames.length >= 2 && summaries['Player 2']) {
+      summaries[playerNames[1]] = summaries['Player 2'];
+    }
+    
+    console.log("Extracted summaries:", summaries);
+    return summaries;
+  };
+
+  const parsePlayerSummary = (summaryText: string) => {
+    const summary: any = {
+      tacticalPatterns: '',
+      shotSelectionTendencies: '',
+      strengthsAndWeaknesses: '',
+      coachingSuggestions: ''
+    };
+    
+    console.log("Parsing summary text:", summaryText.substring(0, 500));
+    
+    // Extract each section with more flexible patterns
+    const patterns = [
+      { key: 'tacticalPatterns', regex: /• Tactical Patterns: (.+?)(?=•|$)/s },
+      { key: 'shotSelectionTendencies', regex: /• Shot Selection Tendencies: (.+?)(?=•|$)/s },
+      { key: 'strengthsAndWeaknesses', regex: /• Strengths and Weaknesses: (.+?)(?=•|$)/s },
+      { key: 'coachingSuggestions', regex: /• Final Coaching Suggestions: (.+?)(?=•|$)/s }
+    ];
+    
+    patterns.forEach(({ key, regex }) => {
+      const match = summaryText.match(regex);
+      if (match) {
+        summary[key] = match[1].trim();
+        console.log(`Found ${key}:`, summary[key].substring(0, 100));
+      }
+    });
+    
+    // Also try alternative patterns without bullet points
+    if (!summary.tacticalPatterns) {
+      const altMatch = summaryText.match(/Tactical Patterns: (.+?)(?=Shot Selection|Strengths|Coaching|$)/s);
+      if (altMatch) summary.tacticalPatterns = altMatch[1].trim();
+    }
+    
+    if (!summary.shotSelectionTendencies) {
+      const altMatch = summaryText.match(/Shot Selection Tendencies: (.+?)(?=Strengths|Coaching|$)/s);
+      if (altMatch) summary.shotSelectionTendencies = altMatch[1].trim();
+    }
+    
+    if (!summary.strengthsAndWeaknesses) {
+      const altMatch = summaryText.match(/Strengths and Weaknesses: (.+?)(?=Coaching|$)/s);
+      if (altMatch) summary.strengthsAndWeaknesses = altMatch[1].trim();
+    }
+    
+    if (!summary.coachingSuggestions) {
+      const altMatch = summaryText.match(/Final Coaching Suggestions: (.+?)(?=$)/s);
+      if (altMatch) summary.coachingSuggestions = altMatch[1].trim();
+    }
+    
+    // Try even more flexible patterns for the exact format shown
+    if (!summary.tacticalPatterns) {
+      const flexMatch = summaryText.match(/\*\*Tactical Patterns:\*\* (.+?)(?=\*\*|$)/s);
+      if (flexMatch) summary.tacticalPatterns = flexMatch[1].trim();
+    }
+    
+    if (!summary.shotSelectionTendencies) {
+      const flexMatch = summaryText.match(/\*\*Shot Selection Tendencies:\*\* (.+?)(?=\*\*|$)/s);
+      if (flexMatch) summary.shotSelectionTendencies = flexMatch[1].trim();
+    }
+    
+    if (!summary.strengthsAndWeaknesses) {
+      const flexMatch = summaryText.match(/\*\*Strengths and Weaknesses:\*\* (.+?)(?=\*\*|$)/s);
+      if (flexMatch) summary.strengthsAndWeaknesses = flexMatch[1].trim();
+    }
+    
+    if (!summary.coachingSuggestions) {
+      const flexMatch = summaryText.match(/\*\*Final Coaching Suggestions:\*\* (.+?)(?=\*\*|$)/s);
+      if (flexMatch) summary.coachingSuggestions = flexMatch[1].trim();
+    }
+    
+    console.log("Parsed summary:", summary);
+    return summary;
+  };
+
   // Calculate player summaries
   const calculatePlayerSummary = () => {
     const playerStats: { [key: string]: any } = {};
+    const detailedSummaries = extractDetailedPlayerSummaries(analysis.rawAnalysis);
     
     shots.forEach(shot => {
       const player = shot.playerIdentity || 'Unknown Player';
@@ -417,7 +535,8 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
           shotQualities: {},
           avgShuttleSpeed: 0,
           speedValues: [],
-          improvementSuggestions: []
+          improvementSuggestions: [],
+          detailedSummary: detailedSummaries[player] || null
         };
       }
       
@@ -553,8 +672,63 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
           </div>
         )}
 
-        {/* Improvement Suggestions Summary */}
-        {stats.improvementSuggestions.length > 0 && (
+        {/* Detailed Summary from Gemini */}
+        {stats.detailedSummary && (
+          <div className="space-y-3">
+            {/* Tactical Patterns */}
+            {stats.detailedSummary.tacticalPatterns && (
+              <div className="p-3 rounded-lg bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
+                <h4 className="font-bold text-blue-400 mb-2 text-sm">Tactical Patterns</h4>
+                <p className="text-foreground text-xs leading-relaxed">
+                  {stats.detailedSummary.tacticalPatterns}
+                </p>
+              </div>
+            )}
+
+            {/* Shot Selection Tendencies */}
+            {stats.detailedSummary.shotSelectionTendencies && (
+              <div className="p-3 rounded-lg bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20">
+                <h4 className="font-bold text-green-400 mb-2 text-sm">Shot Selection</h4>
+                <p className="text-foreground text-xs leading-relaxed">
+                  {stats.detailedSummary.shotSelectionTendencies}
+                </p>
+              </div>
+            )}
+
+            {/* Strengths and Weaknesses */}
+            {stats.detailedSummary.strengthsAndWeaknesses && (
+              <div className="p-3 rounded-lg bg-gradient-to-r from-purple-500/10 to-violet-500/10 border border-purple-500/20">
+                <h4 className="font-bold text-purple-400 mb-2 text-sm">Strengths & Weaknesses</h4>
+                <p className="text-foreground text-xs leading-relaxed">
+                  {stats.detailedSummary.strengthsAndWeaknesses}
+                </p>
+              </div>
+            )}
+
+            {/* Final Coaching Suggestions */}
+            {stats.detailedSummary.coachingSuggestions && (
+              <div className="p-3 rounded-lg bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20">
+                <h4 className="font-bold text-amber-400 mb-2 text-sm">Coaching Suggestions</h4>
+                <p className="text-foreground text-xs leading-relaxed">
+                  {stats.detailedSummary.coachingSuggestions}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Debug: Show if no detailed summary found */}
+        {!stats.detailedSummary && (
+          <div className="p-3 rounded-lg bg-gradient-to-r from-gray-500/10 to-gray-600/10 border border-gray-500/20">
+            <h4 className="font-bold text-gray-400 mb-2 text-sm">Debug Info</h4>
+            <p className="text-foreground text-xs leading-relaxed">
+              No detailed summary found for {playerName}. Check console for parsing details.
+            </p>
+          </div>
+        )}
+
+        {/* Fallback: Individual Shot Improvement Suggestions */}
+        {!stats.detailedSummary && stats.improvementSuggestions.length > 0 && (
           <div className="p-3 rounded-lg bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20">
             <h4 className="font-bold text-amber-400 mb-2 text-sm">Key Areas</h4>
             <div className="space-y-1">
