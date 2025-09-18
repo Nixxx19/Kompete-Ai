@@ -467,7 +467,7 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
     patterns.forEach(({ key, regex }) => {
       const match = summaryText.match(regex);
       if (match) {
-        summary[key] = match[1].trim();
+        summary[key] = match[1].trim().replace(/•\s*$/, '').trim();
         console.log(`Found ${key}:`, summary[key].substring(0, 100));
       }
     });
@@ -475,43 +475,43 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
     // Also try alternative patterns without bullet points
     if (!summary.tacticalPatterns) {
       const altMatch = summaryText.match(/Tactical Patterns: (.+?)(?=Shot Selection|Strengths|Coaching|$)/s);
-      if (altMatch) summary.tacticalPatterns = altMatch[1].trim();
+      if (altMatch) summary.tacticalPatterns = altMatch[1].trim().replace(/•\s*$/, '').trim();
     }
     
     if (!summary.shotSelectionTendencies) {
       const altMatch = summaryText.match(/Shot Selection Tendencies: (.+?)(?=Strengths|Coaching|$)/s);
-      if (altMatch) summary.shotSelectionTendencies = altMatch[1].trim();
+      if (altMatch) summary.shotSelectionTendencies = altMatch[1].trim().replace(/•\s*$/, '').trim();
     }
     
     if (!summary.strengthsAndWeaknesses) {
       const altMatch = summaryText.match(/Strengths and Weaknesses: (.+?)(?=Coaching|$)/s);
-      if (altMatch) summary.strengthsAndWeaknesses = altMatch[1].trim();
+      if (altMatch) summary.strengthsAndWeaknesses = altMatch[1].trim().replace(/•\s*$/, '').trim();
     }
     
     if (!summary.coachingSuggestions) {
       const altMatch = summaryText.match(/Final Coaching Suggestions: (.+?)(?=$)/s);
-      if (altMatch) summary.coachingSuggestions = altMatch[1].trim();
+      if (altMatch) summary.coachingSuggestions = altMatch[1].trim().replace(/•\s*$/, '').trim();
     }
     
     // Try even more flexible patterns for the exact format shown
     if (!summary.tacticalPatterns) {
       const flexMatch = summaryText.match(/\*\*Tactical Patterns:\*\* (.+?)(?=\*\*|$)/s);
-      if (flexMatch) summary.tacticalPatterns = flexMatch[1].trim();
+      if (flexMatch) summary.tacticalPatterns = flexMatch[1].trim().replace(/•\s*$/, '').trim();
     }
     
     if (!summary.shotSelectionTendencies) {
       const flexMatch = summaryText.match(/\*\*Shot Selection Tendencies:\*\* (.+?)(?=\*\*|$)/s);
-      if (flexMatch) summary.shotSelectionTendencies = flexMatch[1].trim();
+      if (flexMatch) summary.shotSelectionTendencies = flexMatch[1].trim().replace(/•\s*$/, '').trim();
     }
     
     if (!summary.strengthsAndWeaknesses) {
       const flexMatch = summaryText.match(/\*\*Strengths and Weaknesses:\*\* (.+?)(?=\*\*|$)/s);
-      if (flexMatch) summary.strengthsAndWeaknesses = flexMatch[1].trim();
+      if (flexMatch) summary.strengthsAndWeaknesses = flexMatch[1].trim().replace(/•\s*$/, '').trim();
     }
     
     if (!summary.coachingSuggestions) {
       const flexMatch = summaryText.match(/\*\*Final Coaching Suggestions:\*\* (.+?)(?=\*\*|$)/s);
-      if (flexMatch) summary.coachingSuggestions = flexMatch[1].trim();
+      if (flexMatch) summary.coachingSuggestions = flexMatch[1].trim().replace(/•\s*$/, '').trim();
     }
     
     console.log("Parsed summary:", summary);
