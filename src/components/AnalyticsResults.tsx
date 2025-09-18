@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Zap, TrendingUp, Clock, Calendar, Activity, Target, Trophy, Download, ArrowLeft, CheckCircle, Video, Target as TargetIcon } from "lucide-react";
+import { Zap, TrendingUp, Clock, Calendar, Activity, Target, Trophy, Download, ArrowLeft, CheckCircle, Video, Target as TargetIcon, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ExerciseAnalysis } from "@/services/geminiService";
 import ReactMarkdown from 'react-markdown';
@@ -401,6 +401,180 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
     }
   };
 
+  // Calculate player summaries
+  const calculatePlayerSummary = () => {
+    const playerStats: { [key: string]: any } = {};
+    
+    shots.forEach(shot => {
+      const player = shot.playerIdentity || 'Unknown Player';
+      
+      if (!playerStats[player]) {
+        playerStats[player] = {
+          totalShots: 0,
+          shotTypes: {},
+          trajectoryClassifications: {},
+          techniqueZones: {},
+          shotQualities: {},
+          avgShuttleSpeed: 0,
+          speedValues: [],
+          improvementSuggestions: []
+        };
+      }
+      
+      playerStats[player].totalShots++;
+      
+      // Count shot types
+      if (shot.shotType) {
+        playerStats[player].shotTypes[shot.shotType] = (playerStats[player].shotTypes[shot.shotType] || 0) + 1;
+      }
+      
+      // Count trajectory classifications
+      if (shot.trajectoryClassification) {
+        playerStats[player].trajectoryClassifications[shot.trajectoryClassification] = (playerStats[player].trajectoryClassifications[shot.trajectoryClassification] || 0) + 1;
+      }
+      
+      // Count technique zones
+      if (shot.techniqueZone) {
+        playerStats[player].techniqueZones[shot.techniqueZone] = (playerStats[player].techniqueZones[shot.techniqueZone] || 0) + 1;
+      }
+      
+      // Count shot qualities
+      if (shot.shotQuality) {
+        playerStats[player].shotQualities[shot.shotQuality] = (playerStats[player].shotQualities[shot.shotQuality] || 0) + 1;
+      }
+      
+      // Extract shuttle speed for average calculation
+      if (shot.estimatedShuttleSpeed) {
+        const speedMatch = shot.estimatedShuttleSpeed.match(/(\d+)/);
+        if (speedMatch) {
+          playerStats[player].speedValues.push(parseInt(speedMatch[1]));
+        }
+      }
+      
+      // Collect improvement suggestions
+      if (shot.improvementSuggestions) {
+        playerStats[player].improvementSuggestions.push(shot.improvementSuggestions);
+      }
+    });
+    
+    // Calculate averages
+    Object.keys(playerStats).forEach(player => {
+      if (playerStats[player].speedValues.length > 0) {
+        playerStats[player].avgShuttleSpeed = Math.round(
+          playerStats[player].speedValues.reduce((a, b) => a + b, 0) / playerStats[player].speedValues.length
+        );
+      }
+    });
+    
+    return playerStats;
+  };
+
+  const playerStats = calculatePlayerSummary();
+
+  // Player Summary Component
+  const PlayerSummaryCard = ({ playerName, stats, index }: { playerName: string; stats: any; index: number }) => (
+    <Card className="group relative overflow-hidden hover:shadow-2xl transition-all duration-500 border-0 bg-gradient-to-br from-card via-card/95 to-card/80 backdrop-blur-xl animate-fade-in" style={{animationDelay: `${index * 200}ms`}}>
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent"></div>
+      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-accent/20 to-transparent rounded-full blur-2xl animate-pulse"></div>
+      <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-green-500/15 to-transparent rounded-full blur-xl"></div>
+      
+      <CardHeader className="relative">
+        <CardTitle className="flex items-center gap-4 text-2xl font-bold bg-gradient-to-r from-primary via-accent to-green-400 bg-clip-text text-transparent">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center shadow-lg shadow-primary/25">
+            <Trophy className="w-6 h-6 text-primary" />
+          </div>
+          <div>
+            <div>{playerName}</div>
+            <div className="text-sm text-muted-foreground font-normal">Performance Summary</div>
+          </div>
+        </CardTitle>
+      </CardHeader>
+      
+      <CardContent className="relative space-y-6">
+        {/* Key Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="text-center p-4 rounded-xl bg-gradient-to-br from-blue-500/10 to-blue-600/10 border border-blue-500/20">
+            <div className="text-2xl font-bold text-blue-400">{stats.totalShots}</div>
+            <div className="text-sm text-muted-foreground">Total Shots</div>
+          </div>
+          <div className="text-center p-4 rounded-xl bg-gradient-to-br from-green-500/10 to-green-600/10 border border-green-500/20">
+            <div className="text-2xl font-bold text-green-400">{stats.avgShuttleSpeed} km/h</div>
+            <div className="text-sm text-muted-foreground">Avg Speed</div>
+          </div>
+          <div className="text-center p-4 rounded-xl bg-gradient-to-br from-purple-500/10 to-purple-600/10 border border-purple-500/20">
+            <div className="text-2xl font-bold text-purple-400">{Object.keys(stats.shotTypes).length}</div>
+            <div className="text-sm text-muted-foreground">Shot Types</div>
+          </div>
+          <div className="text-center p-4 rounded-xl bg-gradient-to-br from-orange-500/10 to-orange-600/10 border border-orange-500/20">
+            <div className="text-2xl font-bold text-orange-400">{Object.keys(stats.techniqueZones).length}</div>
+            <div className="text-sm text-muted-foreground">Technique Zones</div>
+          </div>
+        </div>
+
+        {/* Shot Types Breakdown */}
+        {Object.keys(stats.shotTypes).length > 0 && (
+          <div className="space-y-3">
+            <h4 className="text-lg font-semibold text-foreground">Shot Types</h4>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(stats.shotTypes).map(([shotType, count]) => (
+                <Badge key={shotType} variant="outline" className="text-blue-400 border-blue-400/30 bg-blue-400/10">
+                  {shotType} ({count})
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Trajectory Classifications */}
+        {Object.keys(stats.trajectoryClassifications).length > 0 && (
+          <div className="space-y-3">
+            <h4 className="text-lg font-semibold text-foreground">Trajectory Classifications</h4>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(stats.trajectoryClassifications).map(([trajectory, count]) => (
+                <Badge key={trajectory} variant="outline" className="text-green-400 border-green-400/30 bg-green-400/10">
+                  {trajectory} ({count})
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Shot Quality Distribution */}
+        {Object.keys(stats.shotQualities).length > 0 && (
+          <div className="space-y-3">
+            <h4 className="text-lg font-semibold text-foreground">Shot Quality Distribution</h4>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(stats.shotQualities).map(([quality, count]) => (
+                <Badge key={quality} variant="outline" className="text-purple-400 border-purple-400/30 bg-purple-400/10">
+                  {quality} ({count})
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Improvement Suggestions Summary */}
+        {stats.improvementSuggestions.length > 0 && (
+          <div className="p-4 rounded-xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20">
+            <h4 className="font-bold text-amber-400 mb-3 text-lg">Key Improvement Areas</h4>
+            <div className="space-y-2">
+              {stats.improvementSuggestions.slice(0, 3).map((suggestion, idx) => (
+                <p key={idx} className="text-foreground text-sm leading-relaxed">
+                  • {suggestion}
+                </p>
+              ))}
+              {stats.improvementSuggestions.length > 3 && (
+                <p className="text-muted-foreground text-sm">
+                  +{stats.improvementSuggestions.length - 3} more suggestions...
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+
   // Shot Card Component
   const ShotCard = ({ shot, index }: { shot: ShotAnalysis; index: number }) => (
     <div className="space-y-4">
@@ -610,7 +784,7 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
               <>
                 <div className="text-center mb-6">
                   <h3 className="text-2xl font-bold text-foreground mb-2">
-                    {totalShotsFromAPI ? `API Detected ${totalShotsFromAPI} Shots` : `Found ${shots.length} Shot${shots.length !== 1 ? 's' : ''} in Analysis`}
+                    {totalShotsFromAPI ? `Kompte Ai ${totalShotsFromAPI} Shots` : `Found ${shots.length} Shot${shots.length !== 1 ? 's' : ''} in Analysis`}
                   </h3>
                   <p className="text-muted-foreground">
                     {totalShotsFromAPI && shots.length !== totalShotsFromAPI 
@@ -622,6 +796,38 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
                 {shots.map((shot, index) => (
                   <ShotCard key={index} shot={shot} index={index} />
                 ))}
+                
+                {/* Player Summary Section */}
+                {Object.keys(playerStats).length > 0 && (
+                  <div className="mt-12 space-y-8">
+                    <div className="text-center mb-8">
+                      <div className="flex items-center justify-center gap-4 mb-4">
+                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center shadow-lg shadow-primary/25">
+                          <Users className="w-10 h-10 text-primary" />
+                        </div>
+                        <div>
+                          <h2 className="text-4xl font-bold bg-gradient-to-r from-primary via-accent to-green-400 bg-clip-text text-transparent">
+                            Player Performance Summary
+                          </h2>
+                          <p className="text-lg text-muted-foreground mt-2">
+                            Comprehensive analysis of each player's performance
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                      {Object.entries(playerStats).map(([playerName, stats], index) => (
+                        <PlayerSummaryCard 
+                          key={playerName} 
+                          playerName={playerName} 
+                          stats={stats} 
+                          index={index} 
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
               </>
             ) : (
               <Card className="group relative overflow-hidden hover:shadow-2xl transition-all duration-700 border-0 bg-gradient-to-br from-card via-card/95 to-card/80 backdrop-blur-xl animate-fade-in">
