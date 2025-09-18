@@ -835,24 +835,24 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
               <span className="text-foreground font-medium">{shot.shotQuality}</span>
             </div>
           </div>
+          {/* Improvement Suggestions */}
+          {shot.improvementSuggestions && (
+            <div className="p-4 rounded-lg bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
+                  <span className="text-white text-sm font-bold">💡</span>
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-bold text-amber-400 mb-2 text-sm">Improvement Suggestions</h4>
+                  <p className="text-foreground text-xs leading-relaxed">
+                    {shot.improvementSuggestions}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
-      
-      {shot.improvementSuggestions && (
-        <div className="p-6 rounded-xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20">
-          <div className="flex items-start gap-4">
-            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
-              <span className="text-white text-lg font-bold">💡</span>
-            </div>
-            <div className="flex-1">
-              <h4 className="font-bold text-amber-400 mb-3 text-lg">Improvement Suggestions</h4>
-              <p className="text-foreground text-base leading-relaxed">
-                {shot.improvementSuggestions}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 
