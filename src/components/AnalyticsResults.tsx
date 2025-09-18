@@ -753,14 +753,14 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
   // Shot Card Component
   const ShotCard = ({ shot, index }: { shot: ShotAnalysis; index: number }) => (
     <div className="space-y-4">
-      <Card className="group relative overflow-hidden hover:shadow-2xl transition-all duration-500 border-0 bg-gradient-to-br from-card via-card/95 to-card/80 backdrop-blur-xl animate-fade-in" style={{animationDelay: `${index * 100}ms`}}>
+      <Card className="group relative overflow-hidden transition-all duration-500 border-2 border-blue-500/30 bg-gradient-to-br from-card/95 via-card/90 to-card/85 backdrop-blur-xl animate-fade-in" style={{animationDelay: `${index * 100}ms`}}>
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent"></div>
         <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-accent/20 to-transparent rounded-full blur-2xl animate-pulse"></div>
         <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-green-500/15 to-transparent rounded-full blur-xl"></div>
         
         <CardHeader className="relative pb-6">
           <div className="relative">
-            <div className="relative bg-gradient-to-r from-card/90 to-card/80 backdrop-blur-sm rounded-2xl p-4 border border-blue-500/20">
+            <div className="relative bg-gradient-to-r from-card/95 to-card/85 backdrop-blur-sm rounded-2xl p-4 border-2 border-blue-500/40">
               <CardTitle className="flex items-center gap-4 text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/30 to-purple-500/30 flex items-center justify-center">
                   <TargetIcon className="w-7 h-7 text-blue-300" />
@@ -1044,7 +1044,7 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
           <div className="flex justify-center mt-12">
             <Button
               onClick={() => setShowPlayerSummary(!showPlayerSummary)}
-              className="group relative overflow-hidden bg-gradient-to-r from-primary via-accent to-purple-500 hover:from-primary/90 hover:via-accent/90 hover:to-purple-500/90 transition-all duration-500 px-8 py-4 text-lg font-semibold hover:shadow-xl hover:shadow-primary/25 hover:shadow-2xl hover:shadow-primary/40"
+              className="group relative overflow-hidden bg-gradient-to-r from-primary via-accent to-purple-500 hover:from-primary/90 hover:via-accent/90 hover:to-purple-500/90 transition-all duration-500 px-8 py-4 text-lg font-semibold shadow-none"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               <Users className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform duration-300" />
@@ -1065,7 +1065,7 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
             <CardHeader className="relative">
               <div className="text-center">
                 <div className="flex items-center justify-center gap-4 mb-6">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center shadow-lg shadow-primary/25">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center">
                     <Users className="w-10 h-10 text-primary" />
                   </div>
                   <div>
