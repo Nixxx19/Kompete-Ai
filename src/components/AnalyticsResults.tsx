@@ -638,7 +638,7 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
             <div className="flex flex-wrap gap-1">
               {Object.entries(stats.shotTypes).map(([shotType, count]) => (
                 <Badge key={shotType} variant="outline" className="text-xs text-blue-400 border-blue-400/30 bg-blue-400/10 px-2 py-1">
-                  {shotType} ({count})
+                  {shotType} ({count as number})
                 </Badge>
               ))}
             </div>
@@ -652,7 +652,7 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
             <div className="flex flex-wrap gap-1">
               {Object.entries(stats.trajectoryClassifications).map(([trajectory, count]) => (
                 <Badge key={trajectory} variant="outline" className="text-xs text-green-400 border-green-400/30 bg-green-400/10 px-2 py-1">
-                  {trajectory} ({count})
+                  {trajectory} ({count as number})
                 </Badge>
               ))}
             </div>
@@ -666,7 +666,7 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
             <div className="flex flex-wrap gap-1">
               {Object.entries(stats.shotQualities).map(([quality, count]) => (
                 <Badge key={quality} variant="outline" className="text-xs text-purple-400 border-purple-400/30 bg-purple-400/10 px-2 py-1">
-                  {quality} ({count})
+                  {quality} ({count as number})
                 </Badge>
               ))}
             </div>
@@ -918,145 +918,73 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
           </div>
         )}
 
-        {/* Analysis Results Header */}
-        <div className="text-center mb-12 animate-fade-in">
-          <div className="flex items-center justify-center gap-4 mb-6">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center shadow-lg shadow-primary/25">
-              <Activity className="w-6 h-6 text-primary" />
-            </div>
-            <h2 className="text-4xl font-bold bg-gradient-to-r from-primary via-accent to-green-400 bg-clip-text text-transparent">
-              Shot Analysis
-            </h2>
-          </div>
+        {/* Shot Analysis Section */}
+        <Card className="group relative overflow-hidden hover:shadow-2xl transition-all duration-700 border-0 bg-gradient-to-br from-card via-card/95 to-card/80 backdrop-blur-xl animate-fade-in mt-12">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent"></div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-accent/20 to-transparent rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-green-500/15 to-transparent rounded-full blur-2xl"></div>
           
-          {/* Toggle between structured and raw view - Hidden */}
-          {/* <div className="flex items-center justify-center gap-4">
-            <Button
-              variant={!showRawAnalysis ? "default" : "outline"}
-              size="sm"
-              onClick={() => setShowRawAnalysis(false)}
-              className="transition-all duration-300"
-            >
-              Structured View
-            </Button>
-            <Button
-              variant={showRawAnalysis ? "default" : "outline"}
-              size="sm"
-              onClick={() => setShowRawAnalysis(true)}
-              className="transition-all duration-300"
-            >
-              Raw Analysis
-            </Button>
-          </div> */}
-        </div>
-
-        {/* Shot Cards or Raw Analysis */}
-        {!showRawAnalysis ? (
-          <div className="space-y-8">
-            {shots.length > 0 ? (
-              <>
-                <div className="text-center mb-6">
-                  <h3 className="text-2xl font-bold text-foreground mb-2">
-                    {totalShotsFromAPI ? `Kompete AI Analysis: ${totalShotsFromAPI} Shots Detected` : `Found ${shots.length} Shot${shots.length !== 1 ? 's' : ''} in Analysis`}
-                  </h3>
-                  <p className="text-muted-foreground">
-                    {totalShotsFromAPI && shots.length !== totalShotsFromAPI 
-                      ? `Parsed ${shots.length} of ${totalShotsFromAPI} shots from API response`
-                      : 'Each shot analyzed with detailed performance metrics'
-                    }
-                  </p>
-                </div>
-                {shots.map((shot, index) => (
-                  <ShotCard key={index} shot={shot} index={index} />
-                ))}
-                
-                {/* Player Summary Toggle Button */}
-                {Object.keys(playerStats).length > 0 && (
-                  <div className="flex justify-center mt-8">
-                    <Button
-                      onClick={() => setShowPlayerSummary(!showPlayerSummary)}
-                      className="group relative overflow-hidden bg-gradient-to-r from-primary via-accent to-purple-500 hover:from-primary/90 hover:via-accent/90 hover:to-purple-500/90 transition-all duration-500 px-8 py-4 text-lg font-semibold hover:shadow-xl hover:shadow-primary/25 hover:shadow-2xl hover:shadow-primary/40"
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                      <Users className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform duration-300" />
-                      <span className="relative z-10">
-                        {showPlayerSummary ? 'Hide Player Performance Summary' : 'Show Player Performance Summary'}
-                      </span>
-                    </Button>
-                  </div>
-                )}
-                
-                {/* Player Summary Section */}
-                {Object.keys(playerStats).length > 0 && showPlayerSummary && (
-                  <div className="mt-12 space-y-8">
-                    <div className="text-center mb-8">
-                      <div className="flex items-center justify-center gap-4 mb-4">
-                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center shadow-lg shadow-primary/25">
-                          <Users className="w-10 h-10 text-primary" />
-                        </div>
-                        <div>
-                          <h2 className="text-4xl font-bold bg-gradient-to-r from-primary via-accent to-green-400 bg-clip-text text-transparent">
-                            Player Performance Summary
-                          </h2>
-                          <p className="text-lg text-muted-foreground mt-2">
-                            Comprehensive analysis of each player's performance
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {Object.entries(playerStats).map(([playerName, stats], index) => (
-                        <PlayerSummaryCard 
-                          key={playerName} 
-                          playerName={playerName} 
-                          stats={stats} 
-                          index={index} 
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </>
-            ) : (
-              <Card className="group relative overflow-hidden hover:shadow-2xl transition-all duration-700 border-0 bg-gradient-to-br from-card via-card/95 to-card/80 backdrop-blur-xl animate-fade-in">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent"></div>
-                <CardContent className="relative p-8 text-center">
-                  <div className="text-muted-foreground text-lg mb-4">
-                    No individual shots detected in the analysis. 
-                  </div>
-                  <div className="text-sm text-muted-foreground mb-6">
-                    The analysis may not contain the expected "Shot 1:", "Shot 2:" format.
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowRawAnalysis(true)}
-                    className="mt-4"
-                  >
-                    View Raw Analysis
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        ) : (
-          <Card className="group relative overflow-hidden hover:shadow-2xl transition-all duration-700 border-0 bg-gradient-to-br from-card via-card/95 to-card/80 backdrop-blur-xl animate-fade-in">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent"></div>
-            <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-bl from-accent/20 to-transparent rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-green-500/15 to-transparent rounded-full blur-2xl"></div>
-            <CardHeader className="relative">
-              <CardTitle className="flex items-center gap-4 text-3xl font-bold bg-gradient-to-r from-primary via-accent to-green-400 bg-clip-text text-transparent">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center shadow-lg shadow-primary/25">
-                  <Activity className="w-10 h-10 text-primary" />
+          <CardHeader className="relative">
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-4 mb-6">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500/30 to-purple-500/30 flex items-center justify-center shadow-lg shadow-blue-500/25">
+                  <Activity className="w-10 h-10 text-blue-300" />
                 </div>
                 <div>
-                  <div>Raw Analysis</div>
-                  <div className="text-lg text-muted-foreground font-normal">Complete AI Response</div>
+                  <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                    Shot Analysis
+                  </h2>
+                  <p className="text-lg text-muted-foreground font-normal mt-2">AI-Powered Performance Insights</p>
                 </div>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="relative">
+              </div>
+              
+              <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl p-6 border border-blue-500/20">
+                <h3 className="text-2xl font-bold text-foreground mb-2">
+                  {totalShotsFromAPI ? `Kompete AI Analysis: ${totalShotsFromAPI} Shots Detected` : `Found ${shots.length} Shot${shots.length !== 1 ? 's' : ''} in Analysis`}
+                </h3>
+                <p className="text-muted-foreground">
+                  {totalShotsFromAPI && shots.length !== totalShotsFromAPI 
+                    ? `Parsed ${shots.length} of ${totalShotsFromAPI} shots from API response`
+                    : 'Each shot analyzed with detailed performance metrics'
+                  }
+                </p>
+              </div>
+            </div>
+          </CardHeader>
+
+          <CardContent className="relative">
+            {/* Shot Cards or Raw Analysis */}
+            {!showRawAnalysis ? (
+              <div className="space-y-8">
+                {shots.length > 0 ? (
+                  <>
+                    {shots.map((shot, index) => (
+                      <ShotCard key={index} shot={shot} index={index} />
+                    ))}
+                  </>
+                ) : (
+                  <Card className="group relative overflow-hidden hover:shadow-2xl transition-all duration-700 border-0 bg-gradient-to-br from-card via-card/95 to-card/80 backdrop-blur-xl animate-fade-in">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent"></div>
+                    <CardContent className="relative p-8 text-center">
+                      <div className="text-muted-foreground text-lg mb-4">
+                        No individual shots detected in the analysis. 
+                      </div>
+                      <div className="text-sm text-muted-foreground mb-6">
+                        The analysis may not contain the expected "Shot 1:", "Shot 2:" format.
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowRawAnalysis(true)}
+                        className="mt-4"
+                      >
+                        View Raw Analysis
+                      </Button>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            ) : (
               <div className="prose prose-invert max-w-none bg-gradient-to-br from-background/60 via-background/40 to-background/60 rounded-2xl p-8 border border-border/40 shadow-xl shadow-primary/5 backdrop-blur-sm">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 rounded-2xl"></div>
                 <div className="relative z-10">
@@ -1107,6 +1035,59 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
                   </ReactMarkdown>
                 </div>
               </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Player Summary Section */}
+        {Object.keys(playerStats).length > 0 && (
+          <Card className="group relative overflow-hidden hover:shadow-2xl transition-all duration-700 border-0 bg-gradient-to-br from-card via-card/95 to-card/80 backdrop-blur-xl animate-fade-in mt-12">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent"></div>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-green-500/20 to-transparent rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-purple-500/15 to-transparent rounded-full blur-2xl"></div>
+            
+            <CardHeader className="relative">
+              <div className="text-center">
+                <div className="flex items-center justify-center gap-4 mb-6">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500/30 to-purple-500/30 flex items-center justify-center shadow-lg shadow-green-500/25">
+                    <Users className="w-10 h-10 text-green-300" />
+                  </div>
+                  <div>
+                    <h2 className="text-4xl font-bold bg-gradient-to-r from-green-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
+                      Player Performance Summary
+                    </h2>
+                    <p className="text-lg text-muted-foreground font-normal mt-2">Comprehensive analysis of each player's performance</p>
+                  </div>
+                </div>
+                
+                <div className="flex justify-center">
+                  <Button
+                    onClick={() => setShowPlayerSummary(!showPlayerSummary)}
+                    className="group relative overflow-hidden bg-gradient-to-r from-green-500 via-purple-500 to-blue-500 hover:from-green-500/90 hover:via-purple-500/90 hover:to-blue-500/90 transition-all duration-500 px-8 py-4 text-lg font-semibold hover:shadow-xl hover:shadow-green-500/25 hover:shadow-2xl hover:shadow-green-500/40"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <Users className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform duration-300" />
+                    <span className="relative z-10">
+                      {showPlayerSummary ? 'Hide Player Performance Summary' : 'Show Player Performance Summary'}
+                    </span>
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+
+            <CardContent className="relative">
+              {showPlayerSummary && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {Object.entries(playerStats).map(([playerName, stats], index) => (
+                    <PlayerSummaryCard 
+                      key={playerName} 
+                      playerName={playerName} 
+                      stats={stats} 
+                      index={index} 
+                    />
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         )}
