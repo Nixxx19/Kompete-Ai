@@ -927,9 +927,9 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
           <CardHeader className="relative">
             <div className="text-center">
               <div className="flex items-center justify-center gap-4 mb-6">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500/30 to-purple-500/30 flex items-center justify-center shadow-lg shadow-blue-500/25">
-                  <Activity className="w-10 h-10 text-blue-300" />
-                </div>
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500/30 to-purple-500/30 flex items-center justify-center">
+                    <Activity className="w-10 h-10 text-blue-300" />
+                  </div>
                 <div>
                   <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
                     Shot Analysis
