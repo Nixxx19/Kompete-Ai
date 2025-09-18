@@ -759,9 +759,9 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
         <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-green-500/15 to-transparent rounded-full blur-xl"></div>
         
         <CardHeader className="relative">
-          <CardTitle className="flex items-center gap-5 text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent group-hover:scale-105 transition-transform duration-300">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 m-2">
-              <TargetIcon className="w-8 h-8 text-primary" />
+          <CardTitle className="flex items-center gap-3 text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent group-hover:scale-105 transition-transform duration-300">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/30 to-purple-500/30 flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 m-2">
+              <TargetIcon className="w-8 h-8 text-blue-300" />
             </div>
             <div>
               <div className="tracking-wide">Shot {shot.shotNumber}</div>
