@@ -959,7 +959,7 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
               <>
                 <div className="text-center mb-6">
                   <h3 className="text-2xl font-bold text-foreground mb-2">
-                    {totalShotsFromAPI ? `Kompte Ai Detected ${totalShotsFromAPI} Shots` : `Found ${shots.length} Shot${shots.length !== 1 ? 's' : ''} in Analysis`}
+                    {totalShotsFromAPI ? `Kompete AI Analysis: ${totalShotsFromAPI} Shots Detected` : `Found ${shots.length} Shot${shots.length !== 1 ? 's' : ''} in Analysis`}
                   </h3>
                   <p className="text-muted-foreground">
                     {totalShotsFromAPI && shots.length !== totalShotsFromAPI 
