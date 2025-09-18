@@ -1126,11 +1126,12 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
             <span className="relative z-10">Analyze Another Video</span>
           </Button>
           <Button 
+            variant="outline" 
             size="lg" 
-            className="group relative overflow-hidden bg-gradient-to-r from-primary via-accent to-purple-500 hover:from-primary/90 hover:via-accent/90 hover:to-purple-500/90 transition-all duration-500 px-8 py-4 text-lg font-semibold shadow-xl shadow-primary/25 hover:shadow-2xl hover:shadow-primary/40"
+            className="group relative overflow-hidden bg-gradient-to-r from-secondary/50 to-secondary/30 border-2 border-border/50 hover:border-primary/50 hover:bg-gradient-to-r hover:from-secondary/70 hover:to-secondary/50 transition-all duration-500 px-8 py-4 text-lg font-semibold"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <Download className="w-5 h-5 mr-3 group-hover:translate-y-1 transition-transform duration-300" />
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <Download className="w-5 h-5 mr-3 group-hover:-translate-x-1 transition-transform duration-300" />
             <span className="relative z-10">Download Report</span>
           </Button>
         </div>
