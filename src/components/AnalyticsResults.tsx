@@ -369,6 +369,7 @@ const parseShotsFromAnalysis = (analysisText: string): ShotAnalysis[] => {
 
 const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
   const [showRawAnalysis, setShowRawAnalysis] = useState(false);
+  const [showPlayerSummary, setShowPlayerSummary] = useState(false);
   const shots = parseShotsFromAnalysis(analysis.rawAnalysis);
   
   // Extract total shot count from API response
@@ -971,8 +972,24 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
                   <ShotCard key={index} shot={shot} index={index} />
                 ))}
                 
-                {/* Player Summary Section */}
+                {/* Player Summary Toggle Button */}
                 {Object.keys(playerStats).length > 0 && (
+                  <div className="flex justify-center mt-8">
+                    <Button
+                      onClick={() => setShowPlayerSummary(!showPlayerSummary)}
+                      className="group relative overflow-hidden bg-gradient-to-r from-primary via-accent to-purple-500 hover:from-primary/90 hover:via-accent/90 hover:to-purple-500/90 transition-all duration-500 px-8 py-4 text-lg font-semibold shadow-xl shadow-primary/25 hover:shadow-2xl hover:shadow-primary/40"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                      <Users className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform duration-300" />
+                      <span className="relative z-10">
+                        {showPlayerSummary ? 'Hide Player Performance Summary' : 'Show Player Performance Summary'}
+                      </span>
+                    </Button>
+                  </div>
+                )}
+                
+                {/* Player Summary Section */}
+                {Object.keys(playerStats).length > 0 && showPlayerSummary && (
                   <div className="mt-12 space-y-8">
                     <div className="text-center mb-8">
                       <div className="flex items-center justify-center gap-4 mb-4">
