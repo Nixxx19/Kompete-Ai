@@ -92,15 +92,15 @@ After the shot-by-shot analysis, provide these additional comprehensive sections
 • Analyze power-to-accuracy ratio
 • Identify optimal power levels for different shot types
 
-**Error Rate:**
-• Calculate unforced errors vs total shots
-• Analyze error patterns and causes
-• Identify areas with highest error rates
+**Net Play Efficiency:**
+• Analyze effectiveness of net shots and drop shots
+• Evaluate precision and placement of net play
+• Assess control and touch at the net
 
-**Rally Conversion:**
-• Track shots that led to winning the point
-• Analyze conversion rate and effectiveness
-• Identify most successful shot sequences
+**Defensive Capability:**
+• Evaluate how well players handle difficult shots
+• Analyze defensive clears and lifts
+• Assess recovery and defensive positioning
 
 ### 3. COMPARATIVE ANALYSIS
 **Head-to-Head Comparison:**

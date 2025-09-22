@@ -608,8 +608,8 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
     const efficiency: any = {
       shotAccuracyRate: '',
       powerEfficiency: '',
-      errorRate: '',
-      rallyConversion: ''
+      netPlayEfficiency: '',
+      defensiveCapability: ''
     };
     
     // Calculate actual efficiency metrics from shots
@@ -631,19 +631,45 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
       ? Math.round(speedValues.reduce((sum, speed) => sum + speed, 0) / speedValues.length)
       : 0;
     
-    const errorShots = shots.filter(shot => 
-      shot.shotQuality.toLowerCase().includes('poor') || 
-      shot.shotQuality.toLowerCase().includes('weak') ||
-      shot.shotQuality.toLowerCase().includes('error')
-    ).length;
-    const errorRate = totalShots > 0 ? Math.round((errorShots / totalShots) * 100) : 0;
+    const netShots = shots.filter(shot => {
+      const shotType = shot.shotType.toLowerCase();
+      const quality = shot.shotQuality.toLowerCase();
+      return (shotType.includes('net') || 
+             shotType.includes('drop') || 
+             shotType.includes('net shot') ||
+             shotType.includes('drop shot')) &&
+             (quality.includes('good') ||
+              quality.includes('effective') ||
+              quality.includes('successful') ||
+              quality.includes('well-executed') ||
+              quality.includes('precise') ||
+              quality.includes('accurate'));
+    }).length;
+    const netEfficiency = totalShots > 0 ? Math.round((netShots / totalShots) * 100) : 0;
+
+    const defensiveShots = shots.filter(shot => {
+      const shotType = shot.shotType.toLowerCase();
+      const quality = shot.shotQuality.toLowerCase();
+      return (shotType.includes('clear') || 
+             shotType.includes('lift') || 
+             shotType.includes('defensive') ||
+             shotType.includes('defensive clear') ||
+             shotType.includes('defensive lift')) &&
+             (quality.includes('good') ||
+              quality.includes('effective') ||
+              quality.includes('successful') ||
+              quality.includes('well-executed') ||
+              quality.includes('solid') ||
+              quality.includes('reliable'));
+    }).length;
+    const defensiveRate = totalShots > 0 ? Math.round((defensiveShots / totalShots) * 100) : 0;
     
     // Look for performance efficiency patterns
     const patterns = [
-      { key: 'shotAccuracyRate', regex: /Shot Accuracy Rate: (.+?)(?=Power Efficiency|Error Rate|Rally Conversion|$)/s },
-      { key: 'powerEfficiency', regex: /Power Efficiency: (.+?)(?=Error Rate|Rally Conversion|$)/s },
-      { key: 'errorRate', regex: /Error Rate: (.+?)(?=Rally Conversion|$)/s },
-      { key: 'rallyConversion', regex: /Rally Conversion: (.+?)(?=$)/s }
+      { key: 'shotAccuracyRate', regex: /Shot Accuracy Rate: (.+?)(?=Power Efficiency|Net Play Efficiency|Defensive Capability|$)/s },
+      { key: 'powerEfficiency', regex: /Power Efficiency: (.+?)(?=Net Play Efficiency|Defensive Capability|$)/s },
+      { key: 'netPlayEfficiency', regex: /Net Play Efficiency: (.+?)(?=Defensive Capability|$)/s },
+      { key: 'defensiveCapability', regex: /Defensive Capability: (.+?)(?=$)/s }
     ];
     
     patterns.forEach(({ key, regex }) => {
@@ -660,32 +686,11 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
     if (!efficiency.powerEfficiency) {
       efficiency.powerEfficiency = averageSpeed > 0 ? `${averageSpeed} km/h average power - Optimal power-to-accuracy ratio with consistent shot execution across all shot types.` : "Power efficiency data not available";
     }
-    if (!efficiency.errorRate) {
-      efficiency.errorRate = `${errorRate}% error rate - ${errorShots}/${totalShots} unforced errors with most errors occurring in high-pressure situations.`;
+    if (!efficiency.netPlayEfficiency) {
+      efficiency.netPlayEfficiency = `${netEfficiency}% net efficiency - ${netShots}/${totalShots} net shots and drops were executed effectively with good precision and placement.`;
     }
-    if (!efficiency.rallyConversion) {
-      const winningShots = shots.filter(shot => {
-        const quality = shot.shotQuality.toLowerCase();
-        return quality.includes('winner') ||
-               quality.includes('excellent') ||
-               quality.includes('outstanding') ||
-               quality.includes('superb') ||
-               quality.includes('exceptional') ||
-               quality.includes('perfect') ||
-               quality.includes('brilliant') ||
-               quality.includes('outstanding') ||
-               quality.includes('high quality') ||
-               quality.includes('very good') ||
-               quality.includes('great') ||
-               quality.includes('effective') ||
-               quality.includes('successful') ||
-               quality.includes('decisive') ||
-               quality.includes('winning') ||
-               quality.includes('point-winning') ||
-               quality.includes('match-winning');
-      }).length;
-      const conversionRate = totalShots > 0 ? Math.round((winningShots / totalShots) * 100) : 0;
-      efficiency.rallyConversion = `${conversionRate}% conversion rate - ${winningShots}/${totalShots} shots led to winning points with effective shot sequences.`;
+    if (!efficiency.defensiveCapability) {
+      efficiency.defensiveCapability = `${defensiveRate}% defensive success - ${defensiveShots}/${totalShots} defensive shots were handled well with solid technique and good positioning.`;
     }
     
     return efficiency;
@@ -1682,7 +1687,7 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
                   </CardContent>
                 </Card>
 
-                {/* Error Rate Card */}
+                {/* Net Play Efficiency Card */}
                 <Card className="group relative overflow-hidden hover:shadow-2xl transition-all duration-300 border border-pink-500/20 bg-gradient-to-br from-card/95 via-card/90 to-card/85 backdrop-blur-xl animate-fade-in shadow-lg shadow-pink-500/10" style={{animationDelay: '300ms'}}>
                   <div className="absolute inset-0 bg-gradient-to-br from-pink-500/10 to-transparent"></div>
                   <CardHeader className="pb-4">
@@ -1690,7 +1695,7 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
                       <div className="w-8 h-8 bg-gradient-to-r from-pink-500/30 to-purple-500/30 rounded-lg flex items-center justify-center">
                         <Activity className="w-4 h-4 text-pink-300" />
                       </div>
-                      Error Rate
+                      Net Play Efficiency
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -1699,25 +1704,34 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
                         <div className="text-2xl font-bold text-pink-300">
                           {(() => {
                             const totalShots = shots.length;
-                            const errorShots = shots.filter(shot => 
-                              shot.shotQuality.toLowerCase().includes('poor') || 
-                              shot.shotQuality.toLowerCase().includes('weak') ||
-                              shot.shotQuality.toLowerCase().includes('error')
-                            ).length;
-                            const errorRate = totalShots > 0 ? Math.round((errorShots / totalShots) * 100) : 0;
-                            return `${errorRate}%`;
+                            const netShots = shots.filter(shot => {
+                              const shotType = shot.shotType.toLowerCase();
+                              const quality = shot.shotQuality.toLowerCase();
+                              return (shotType.includes('net') || 
+                                     shotType.includes('drop') || 
+                                     shotType.includes('net shot') ||
+                                     shotType.includes('drop shot')) &&
+                                     (quality.includes('good') ||
+                                      quality.includes('effective') ||
+                                      quality.includes('successful') ||
+                                      quality.includes('well-executed') ||
+                                      quality.includes('precise') ||
+                                      quality.includes('accurate'));
+                            }).length;
+                            const netEfficiency = totalShots > 0 ? Math.round((netShots / totalShots) * 100) : 0;
+                            return `${netEfficiency}%`;
                           })()}
                         </div>
-                        <div className="text-sm text-muted-foreground">Error Rate</div>
+                        <div className="text-sm text-muted-foreground">Net Efficiency</div>
                       </div>
                       <p className="text-muted-foreground text-sm leading-relaxed">
-                        {performanceEfficiency.errorRate}
+                        {performanceEfficiency.netPlayEfficiency}
                       </p>
                     </div>
                   </CardContent>
                 </Card>
 
-                {/* Rally Conversion Card */}
+                {/* Defensive Capability Card */}
                 <Card className="group relative overflow-hidden hover:shadow-2xl transition-all duration-300 border border-purple-500/20 bg-gradient-to-br from-card/95 via-card/90 to-card/85 backdrop-blur-xl animate-fade-in shadow-lg shadow-purple-500/10" style={{animationDelay: '450ms'}}>
                   <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent"></div>
                   <CardHeader className="pb-4">
@@ -1725,7 +1739,7 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
                       <div className="w-8 h-8 bg-gradient-to-r from-purple-500/30 to-blue-500/30 rounded-lg flex items-center justify-center">
                         <Activity className="w-4 h-4 text-purple-300" />
                       </div>
-                      Rally Conversion
+                      Defensive Capability
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -1734,34 +1748,29 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
                         <div className="text-2xl font-bold text-purple-300">
                           {(() => {
                             const totalShots = shots.length;
-                            const winningShots = shots.filter(shot => {
+                            const defensiveShots = shots.filter(shot => {
+                              const shotType = shot.shotType.toLowerCase();
                               const quality = shot.shotQuality.toLowerCase();
-                              return quality.includes('winner') ||
-                                     quality.includes('excellent') ||
-                                     quality.includes('outstanding') ||
-                                     quality.includes('superb') ||
-                                     quality.includes('exceptional') ||
-                                     quality.includes('perfect') ||
-                                     quality.includes('brilliant') ||
-                                     quality.includes('outstanding') ||
-                                     quality.includes('high quality') ||
-                                     quality.includes('very good') ||
-                                     quality.includes('great') ||
-                                     quality.includes('effective') ||
-                                     quality.includes('successful') ||
-                                     quality.includes('decisive') ||
-                                     quality.includes('winning') ||
-                                     quality.includes('point-winning') ||
-                                     quality.includes('match-winning');
+                              return (shotType.includes('clear') || 
+                                     shotType.includes('lift') || 
+                                     shotType.includes('defensive') ||
+                                     shotType.includes('defensive clear') ||
+                                     shotType.includes('defensive lift')) &&
+                                     (quality.includes('good') ||
+                                      quality.includes('effective') ||
+                                      quality.includes('successful') ||
+                                      quality.includes('well-executed') ||
+                                      quality.includes('solid') ||
+                                      quality.includes('reliable'));
                             }).length;
-                            const conversionRate = totalShots > 0 ? Math.round((winningShots / totalShots) * 100) : 0;
-                            return `${conversionRate}%`;
+                            const defensiveRate = totalShots > 0 ? Math.round((defensiveShots / totalShots) * 100) : 0;
+                            return `${defensiveRate}%`;
                           })()}
                         </div>
-                        <div className="text-sm text-muted-foreground">Conversion</div>
+                        <div className="text-sm text-muted-foreground">Defensive Success</div>
                       </div>
                       <p className="text-muted-foreground text-sm leading-relaxed">
-                        {performanceEfficiency.rallyConversion}
+                        {performanceEfficiency.defensiveCapability}
                       </p>
                     </div>
                   </CardContent>
