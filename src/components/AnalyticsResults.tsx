@@ -1172,7 +1172,7 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent"></div>
               <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-blue-500/20 to-transparent rounded-full blur-3xl animate-pulse"></div>
               <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-purple-500/15 to-transparent rounded-full blur-2xl"></div>
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+              
               <CardHeader className="relative">
                 <CardTitle className="flex items-center gap-4 text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
                   <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500/30 to-purple-500/30 flex items-center justify-center">
@@ -1187,20 +1187,22 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
                   Review your uploaded badminton video with AI-powered analysis
                 </CardDescription>
               </CardHeader>
-                              <CardContent className="relative">
-                  <div className="w-full max-w-5xl mx-auto">
-                    <div className="relative group/video">
-                      <video 
-                        controls 
-                        className="w-full h-auto rounded-2xl shadow-2xl shadow-blue-500/20 border border-blue-500/20 group-hover/video:shadow-blue-500/30 transition-all duration-500"
-                        src={URL.createObjectURL(videoFile)}
-                      >
-                        Your browser does not support the video tag.
-                      </video>
-                      <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover/video:opacity-100 transition-opacity duration-500"></div>
-                    </div>
+
+              <CardContent className="relative">
+                <div className="w-full max-w-5xl mx-auto">
+                  <div className="relative">
+                    <video 
+                      controls 
+                      preload="metadata"
+                      playsInline
+                      className="w-full h-auto rounded-2xl shadow-2xl shadow-blue-500/20 border border-blue-500/20"
+                      src={URL.createObjectURL(videoFile)}
+                    >
+                      Your browser does not support the video tag.
+                    </video>
                   </div>
-                </CardContent>
+                </div>
+              </CardContent>
             </Card>
           </div>
         )}

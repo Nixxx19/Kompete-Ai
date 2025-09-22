@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
-import { analyzeExerciseVideo, mockAnalyzeExerciseVideo, ExerciseAnalysis } from '@/services/geminiService';
+import { analyzeExerciseVideo, ExerciseAnalysis } from '@/services/geminiService';
 import AnalyticsResults from '@/components/AnalyticsResults';
 
 const AnalyticsGemini = () => {
@@ -179,34 +179,52 @@ const AnalyticsGemini = () => {
                 {/* Upload Process Steps */}
                 <div className="flex items-center justify-center gap-1 sm:gap-4 mb-8 px-2 overflow-x-auto">
                   <div className="flex items-center gap-1 sm:gap-2 min-w-fit">
-                    <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium transition-all duration-500 ${
+                    <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-sm sm:text-base font-bold transition-all duration-500 border-2 ${
                       uploadedFile 
-                        ? 'bg-green-500 text-white scale-110 shadow-lg shadow-green-500/30' 
-                        : 'bg-primary text-primary-foreground'
+                        ? 'bg-green-500 text-white border-green-500 scale-110 shadow-lg shadow-green-500/30' 
+                        : 'bg-primary/20 text-primary border-primary/30'
                     }`}>
                       {uploadedFile ? '✓' : '1'}
                     </div>
-                    <span className={`text-xs sm:text-sm font-medium transition-colors duration-300 whitespace-nowrap ${
-                      uploadedFile ? 'text-green-500' : 'text-primary'
+                    <span className={`text-sm sm:text-base font-semibold transition-colors duration-300 whitespace-nowrap ${
+                      uploadedFile ? 'text-green-400' : 'text-primary'
                     }`}>
                       Upload
                     </span>
                   </div>
-                  <div className={`w-3 sm:w-8 h-0.5 transition-colors duration-500 ${
-                    uploadedFile ? 'bg-green-500/50' : 'bg-border'
+                  <div className={`w-4 sm:w-10 h-1 rounded-full transition-colors duration-500 ${
+                    uploadedFile ? 'bg-green-500/60' : 'bg-border/50'
                   }`}></div>
                   <div className="flex items-center gap-1 sm:gap-2 min-w-fit">
-                    <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-xs sm:text-sm font-medium">
-                      2
+                    <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-sm sm:text-base font-bold border-2 transition-all duration-500 ${
+                      isAnalyzing 
+                        ? 'bg-orange-500/20 text-orange-400 border-orange-500/30 scale-110 shadow-lg shadow-orange-500/30' 
+                        : 'bg-muted/20 text-muted-foreground border-muted/30'
+                    }`}>
+                      {isAnalyzing ? '⟳' : '2'}
                     </div>
-                    <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">Process</span>
+                    <span className={`text-sm sm:text-base font-semibold whitespace-nowrap transition-colors duration-300 ${
+                      isAnalyzing ? 'text-orange-400' : 'text-muted-foreground'
+                    }`}>
+                      Process
+                    </span>
                   </div>
-                  <div className="w-3 sm:w-8 h-0.5 bg-border"></div>
+                  <div className={`w-4 sm:w-10 h-1 rounded-full transition-colors duration-500 ${
+                    analysisResults ? 'bg-green-500/60' : 'bg-border/50'
+                  }`}></div>
                   <div className="flex items-center gap-1 sm:gap-2 min-w-fit">
-                    <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-xs sm:text-sm font-medium">
-                      3
+                    <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-sm sm:text-base font-bold border-2 transition-all duration-500 ${
+                      analysisResults 
+                        ? 'bg-green-500 text-white border-green-500 scale-110 shadow-lg shadow-green-500/30' 
+                        : 'bg-muted/20 text-muted-foreground border-muted/30'
+                    }`}>
+                      {analysisResults ? '✓' : '3'}
                     </div>
-                    <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">Results</span>
+                    <span className={`text-sm sm:text-base font-semibold whitespace-nowrap transition-colors duration-300 ${
+                      analysisResults ? 'text-green-400' : 'text-muted-foreground'
+                    }`}>
+                      Results
+                    </span>
                   </div>
                 </div>
 
@@ -225,8 +243,16 @@ const AnalyticsGemini = () => {
                     {uploadedFile ? (
                       <div className="space-y-4 animate-fade-in">
                         <div className="flex items-center justify-center">
-                          <div className="p-4 rounded-full bg-green-500/20 border-2 border-green-500/30 pulse-glow">
-                            <FileVideo className="w-8 h-8 text-green-400" />
+                          <div className={`p-4 rounded-full border-2 pulse-glow ${
+                            isAnalyzing 
+                              ? 'bg-orange-500/20 border-orange-500/30' 
+                              : 'bg-green-500/20 border-green-500/30'
+                          }`}>
+                            {isAnalyzing ? (
+                              <Loader2 className="w-8 h-8 text-orange-400 animate-spin" />
+                            ) : (
+                              <FileVideo className="w-8 h-8 text-green-400" />
+                            )}
                           </div>
                         </div>
                         <div>
@@ -235,8 +261,17 @@ const AnalyticsGemini = () => {
                             {(uploadedFile.size / (1024 * 1024)).toFixed(2)} MB
                           </p>
                           <div className="mt-2 flex items-center gap-2">
-                            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                            <span className="text-xs text-green-400 font-medium">Ready for analysis</span>
+                            {isAnalyzing ? (
+                              <>
+                                <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                                <span className="text-xs text-orange-400 font-medium">Analyzing...</span>
+                              </>
+                            ) : (
+                              <>
+                                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                <span className="text-xs text-green-400 font-medium">Ready for analysis</span>
+                              </>
+                            )}
                           </div>
                         </div>
                       </div>
