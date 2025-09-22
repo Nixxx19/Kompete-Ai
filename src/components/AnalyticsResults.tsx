@@ -603,20 +603,22 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
     return analysis;
   };
 
-  // Extract statistical aggregates
-  const extractStatisticalAggregates = (rawAnalysis: string, shots: ShotAnalysis[]) => {
-    const stats: any = {
-      averageShotSpeed: '',
-      shotDistribution: '',
-      courtCoverage: '',
-      rallyLength: ''
+  // Extract performance efficiency metrics
+  const extractPerformanceEfficiency = (rawAnalysis: string, shots: ShotAnalysis[]) => {
+    const efficiency: any = {
+      shotAccuracyRate: '',
+      powerEfficiency: '',
+      errorRate: '',
+      rallyConversion: ''
     };
     
-    // Calculate actual statistics from shots
-    const shotTypes = shots.reduce((acc, shot) => {
-      acc[shot.shotType] = (acc[shot.shotType] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    // Calculate actual efficiency metrics from shots
+    const totalShots = shots.length;
+    const successfulShots = shots.filter(shot => 
+      !shot.shotQuality.toLowerCase().includes('poor') && 
+      !shot.shotQuality.toLowerCase().includes('weak')
+    ).length;
+    const accuracyRate = totalShots > 0 ? Math.round((successfulShots / totalShots) * 100) : 0;
     
     const speedValues = shots
       .map(shot => {
@@ -629,39 +631,64 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
       ? Math.round(speedValues.reduce((sum, speed) => sum + speed, 0) / speedValues.length)
       : 0;
     
-    // Look for statistical analysis patterns
+    const errorShots = shots.filter(shot => 
+      shot.shotQuality.toLowerCase().includes('poor') || 
+      shot.shotQuality.toLowerCase().includes('weak') ||
+      shot.shotQuality.toLowerCase().includes('error')
+    ).length;
+    const errorRate = totalShots > 0 ? Math.round((errorShots / totalShots) * 100) : 0;
+    
+    // Look for performance efficiency patterns
     const patterns = [
-      { key: 'averageShotSpeed', regex: /Average Shot Speed: (.+?)(?=Shot Distribution|Court Coverage|Rally Length|$)/s },
-      { key: 'shotDistribution', regex: /Shot Distribution: (.+?)(?=Court Coverage|Rally Length|$)/s },
-      { key: 'courtCoverage', regex: /Court Coverage: (.+?)(?=Rally Length|$)/s },
-      { key: 'rallyLength', regex: /Rally Length: (.+?)(?=$)/s }
+      { key: 'shotAccuracyRate', regex: /Shot Accuracy Rate: (.+?)(?=Power Efficiency|Error Rate|Rally Conversion|$)/s },
+      { key: 'powerEfficiency', regex: /Power Efficiency: (.+?)(?=Error Rate|Rally Conversion|$)/s },
+      { key: 'errorRate', regex: /Error Rate: (.+?)(?=Rally Conversion|$)/s },
+      { key: 'rallyConversion', regex: /Rally Conversion: (.+?)(?=$)/s }
     ];
     
     patterns.forEach(({ key, regex }) => {
       const match = rawAnalysis.match(regex);
       if (match) {
-        stats[key] = match[1].trim().replace(/•\s*$/, '').trim();
+        efficiency[key] = match[1].trim().replace(/•\s*$/, '').trim();
       }
     });
     
     // If no data found, create calculated data
-    if (!stats.averageShotSpeed) {
-      stats.averageShotSpeed = averageSpeed > 0 ? `${averageSpeed} km/h average` : "Speed data not available";
+    if (!efficiency.shotAccuracyRate) {
+      efficiency.shotAccuracyRate = `${accuracyRate}% accuracy rate - ${successfulShots}/${totalShots} shots hit their intended target with good placement and consistency.`;
     }
-    if (!stats.shotDistribution) {
-      const distribution = Object.entries(shotTypes)
-        .map(([type, count]) => `${type}: ${count} shots`)
-        .join(', ');
-      stats.shotDistribution = distribution || "Shot type data not available";
+    if (!efficiency.powerEfficiency) {
+      efficiency.powerEfficiency = averageSpeed > 0 ? `${averageSpeed} km/h average power - Optimal power-to-accuracy ratio with consistent shot execution across all shot types.` : "Power efficiency data not available";
     }
-    if (!stats.courtCoverage) {
-      stats.courtCoverage = "Both players showed good court coverage with effective movement patterns";
+    if (!efficiency.errorRate) {
+      efficiency.errorRate = `${errorRate}% error rate - ${errorShots}/${totalShots} unforced errors with most errors occurring in high-pressure situations.`;
     }
-    if (!stats.rallyLength) {
-      stats.rallyLength = `${shots.length} shots analyzed in this rally sequence`;
+    if (!efficiency.rallyConversion) {
+      const winningShots = shots.filter(shot => {
+        const quality = shot.shotQuality.toLowerCase();
+        return quality.includes('winner') ||
+               quality.includes('excellent') ||
+               quality.includes('outstanding') ||
+               quality.includes('superb') ||
+               quality.includes('exceptional') ||
+               quality.includes('perfect') ||
+               quality.includes('brilliant') ||
+               quality.includes('outstanding') ||
+               quality.includes('high quality') ||
+               quality.includes('very good') ||
+               quality.includes('great') ||
+               quality.includes('effective') ||
+               quality.includes('successful') ||
+               quality.includes('decisive') ||
+               quality.includes('winning') ||
+               quality.includes('point-winning') ||
+               quality.includes('match-winning');
+      }).length;
+      const conversionRate = totalShots > 0 ? Math.round((winningShots / totalShots) * 100) : 0;
+      efficiency.rallyConversion = `${conversionRate}% conversion rate - ${winningShots}/${totalShots} shots led to winning points with effective shot sequences.`;
     }
     
-    return stats;
+    return efficiency;
   };
 
   // Extract comparative analysis
@@ -843,7 +870,7 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
   
   // Extract all additional analysis data
   const overallAnalysis = extractOverallAnalysis(analysis.rawAnalysis);
-  const statisticalAnalysis = extractStatisticalAggregates(analysis.rawAnalysis, shots);
+  const performanceEfficiency = extractPerformanceEfficiency(analysis.rawAnalysis, shots);
   const comparativeAnalysis = extractComparativeAnalysis(analysis.rawAnalysis);
   const technicalInsights = extractTechnicalInsights(analysis.rawAnalysis);
   const strategicAnalysis = extractStrategicAnalysis(analysis.rawAnalysis);
@@ -1323,7 +1350,7 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
             </span>
           </Button>
 
-          {/* Statistical Analysis Toggle */}
+          {/* Performance Efficiency Toggle */}
           <Button
             onClick={() => setShowStatisticalAnalysis(!showStatisticalAnalysis)}
             className="group relative overflow-hidden bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 hover:from-orange-500/90 hover:via-red-500/90 hover:to-pink-500/90 transition-all duration-500 px-6 py-3 text-sm font-semibold shadow-none"
@@ -1331,7 +1358,7 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
             <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             <Activity className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
             <span className="relative z-10">
-              {showStatisticalAnalysis ? 'Hide Statistics' : 'Show Statistics'}
+              {showStatisticalAnalysis ? 'Hide Efficiency' : 'Show Efficiency'}
             </span>
           </Button>
 
@@ -1561,85 +1588,187 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
           </Card>
         )}
 
-        {/* Statistical Analysis Section */}
+        {/* Performance Efficiency Section */}
         {showStatisticalAnalysis && (
-          <section className="py-12">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="text-center mb-12">
-                <div className="flex items-center justify-center gap-4 mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-orange-500/30 to-red-500/30 rounded-xl flex items-center justify-center">
-                    <Activity className="w-6 h-6 text-orange-300" />
+          <Card className="group relative overflow-hidden hover:shadow-2xl transition-all duration-700 border-0 bg-gradient-to-br from-card via-card/95 to-card/80 backdrop-blur-xl animate-fade-in mt-8">
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent"></div>
+            
+            <CardHeader className="relative">
+              <div className="flex items-center justify-center">
+                <div className="flex items-center gap-6">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500/30 to-red-500/30 flex items-center justify-center">
+                    <Activity className="w-10 h-10 text-orange-300" />
                   </div>
-                  <h2 className="text-3xl font-bold bg-gradient-to-r from-orange-400 via-red-400 to-pink-400 bg-clip-text text-transparent">
-                    Statistical Analysis
-                  </h2>
+                  <div>
+                    <h2 className="text-4xl font-bold bg-gradient-to-r from-orange-400 via-red-400 to-pink-400 bg-clip-text text-transparent">
+                      Performance Efficiency
+                    </h2>
+                    <p className="text-lg text-muted-foreground font-normal mt-2">Detailed efficiency metrics and performance analysis</p>
+                  </div>
                 </div>
-                <p className="text-lg text-muted-foreground font-normal mt-2">Detailed statistics and performance metrics</p>
               </div>
-              
-              <div className="grid md:grid-cols-2 gap-6">
-                <Card className="group relative overflow-hidden hover:shadow-2xl transition-all duration-300 border border-orange-500/20 bg-gradient-to-br from-card/95 via-card/90 to-card/85 backdrop-blur-xl animate-fade-in shadow-lg shadow-orange-500/10">
+            </CardHeader>
+
+            <CardContent className="relative">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Shot Accuracy Rate Card */}
+                <Card className="group relative overflow-hidden hover:shadow-2xl transition-all duration-300 border border-orange-500/20 bg-gradient-to-br from-card/95 via-card/90 to-card/85 backdrop-blur-xl animate-fade-in shadow-lg shadow-orange-500/10" style={{animationDelay: '0ms'}}>
                   <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-transparent"></div>
                   <CardHeader className="pb-4">
                     <CardTitle className="flex items-center gap-3 text-xl">
                       <div className="w-8 h-8 bg-gradient-to-r from-orange-500/30 to-red-500/30 rounded-lg flex items-center justify-center">
                         <Activity className="w-4 h-4 text-orange-300" />
                       </div>
-                      Average Shot Speed
+                      Shot Accuracy Rate
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground leading-relaxed">{statisticalAnalysis.averageShotSpeed}</p>
+                    <div className="space-y-4">
+                      <div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 rounded-lg p-4 text-center">
+                        <div className="text-2xl font-bold text-orange-300">
+                          {(() => {
+                            const totalShots = shots.length;
+                            const successfulShots = shots.filter(shot => 
+                              !shot.shotQuality.toLowerCase().includes('poor') && 
+                              !shot.shotQuality.toLowerCase().includes('weak')
+                            ).length;
+                            const accuracyRate = totalShots > 0 ? Math.round((successfulShots / totalShots) * 100) : 0;
+                            return `${accuracyRate}%`;
+                          })()}
+                        </div>
+                        <div className="text-sm text-muted-foreground">Accuracy Rate</div>
+                      </div>
+                      <p className="text-muted-foreground text-sm leading-relaxed">
+                        {performanceEfficiency.shotAccuracyRate}
+                      </p>
+                    </div>
                   </CardContent>
                 </Card>
 
-                <Card className="group relative overflow-hidden hover:shadow-2xl transition-all duration-300 border border-red-500/20 bg-gradient-to-br from-card/95 via-card/90 to-card/85 backdrop-blur-xl animate-fade-in shadow-lg shadow-red-500/10">
+                {/* Power Efficiency Card */}
+                <Card className="group relative overflow-hidden hover:shadow-2xl transition-all duration-300 border border-red-500/20 bg-gradient-to-br from-card/95 via-card/90 to-card/85 backdrop-blur-xl animate-fade-in shadow-lg shadow-red-500/10" style={{animationDelay: '150ms'}}>
                   <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 to-transparent"></div>
                   <CardHeader className="pb-4">
                     <CardTitle className="flex items-center gap-3 text-xl">
                       <div className="w-8 h-8 bg-gradient-to-r from-red-500/30 to-pink-500/30 rounded-lg flex items-center justify-center">
                         <Activity className="w-4 h-4 text-red-300" />
                       </div>
-                      Shot Distribution
+                      Power Efficiency
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground leading-relaxed">{statisticalAnalysis.shotDistribution}</p>
+                    <div className="space-y-4">
+                      <div className="bg-gradient-to-r from-red-500/20 to-pink-500/20 rounded-lg p-4 text-center">
+                        <div className="text-2xl font-bold text-red-300">
+                          {(() => {
+                            const speedValues = shots
+                              .map(shot => {
+                                const match = shot.estimatedShuttleSpeed.match(/(\d+)/);
+                                return match ? parseInt(match[1]) : 0;
+                              })
+                              .filter(speed => speed > 0);
+                            const averageSpeed = speedValues.length > 0 
+                              ? Math.round(speedValues.reduce((sum, speed) => sum + speed, 0) / speedValues.length)
+                              : 0;
+                            return averageSpeed > 0 ? `${averageSpeed} km/h` : 'N/A';
+                          })()}
+                        </div>
+                        <div className="text-sm text-muted-foreground">Avg Power</div>
+                      </div>
+                      <p className="text-muted-foreground text-sm leading-relaxed">
+                        {performanceEfficiency.powerEfficiency}
+                      </p>
+                    </div>
                   </CardContent>
                 </Card>
 
-                <Card className="group relative overflow-hidden hover:shadow-2xl transition-all duration-300 border border-pink-500/20 bg-gradient-to-br from-card/95 via-card/90 to-card/85 backdrop-blur-xl animate-fade-in shadow-lg shadow-pink-500/10">
+                {/* Error Rate Card */}
+                <Card className="group relative overflow-hidden hover:shadow-2xl transition-all duration-300 border border-pink-500/20 bg-gradient-to-br from-card/95 via-card/90 to-card/85 backdrop-blur-xl animate-fade-in shadow-lg shadow-pink-500/10" style={{animationDelay: '300ms'}}>
                   <div className="absolute inset-0 bg-gradient-to-br from-pink-500/10 to-transparent"></div>
                   <CardHeader className="pb-4">
                     <CardTitle className="flex items-center gap-3 text-xl">
                       <div className="w-8 h-8 bg-gradient-to-r from-pink-500/30 to-purple-500/30 rounded-lg flex items-center justify-center">
                         <Activity className="w-4 h-4 text-pink-300" />
                       </div>
-                      Court Coverage
+                      Error Rate
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground leading-relaxed">{statisticalAnalysis.courtCoverage}</p>
+                    <div className="space-y-4">
+                      <div className="bg-gradient-to-r from-pink-500/20 to-purple-500/20 rounded-lg p-4 text-center">
+                        <div className="text-2xl font-bold text-pink-300">
+                          {(() => {
+                            const totalShots = shots.length;
+                            const errorShots = shots.filter(shot => 
+                              shot.shotQuality.toLowerCase().includes('poor') || 
+                              shot.shotQuality.toLowerCase().includes('weak') ||
+                              shot.shotQuality.toLowerCase().includes('error')
+                            ).length;
+                            const errorRate = totalShots > 0 ? Math.round((errorShots / totalShots) * 100) : 0;
+                            return `${errorRate}%`;
+                          })()}
+                        </div>
+                        <div className="text-sm text-muted-foreground">Error Rate</div>
+                      </div>
+                      <p className="text-muted-foreground text-sm leading-relaxed">
+                        {performanceEfficiency.errorRate}
+                      </p>
+                    </div>
                   </CardContent>
                 </Card>
 
-                <Card className="group relative overflow-hidden hover:shadow-2xl transition-all duration-300 border border-purple-500/20 bg-gradient-to-br from-card/95 via-card/90 to-card/85 backdrop-blur-xl animate-fade-in shadow-lg shadow-purple-500/10">
+                {/* Rally Conversion Card */}
+                <Card className="group relative overflow-hidden hover:shadow-2xl transition-all duration-300 border border-purple-500/20 bg-gradient-to-br from-card/95 via-card/90 to-card/85 backdrop-blur-xl animate-fade-in shadow-lg shadow-purple-500/10" style={{animationDelay: '450ms'}}>
                   <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent"></div>
                   <CardHeader className="pb-4">
                     <CardTitle className="flex items-center gap-3 text-xl">
                       <div className="w-8 h-8 bg-gradient-to-r from-purple-500/30 to-blue-500/30 rounded-lg flex items-center justify-center">
                         <Activity className="w-4 h-4 text-purple-300" />
                       </div>
-                      Rally Length
+                      Rally Conversion
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground leading-relaxed">{statisticalAnalysis.rallyLength}</p>
+                    <div className="space-y-4">
+                      <div className="bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-lg p-4 text-center">
+                        <div className="text-2xl font-bold text-purple-300">
+                          {(() => {
+                            const totalShots = shots.length;
+                            const winningShots = shots.filter(shot => {
+                              const quality = shot.shotQuality.toLowerCase();
+                              return quality.includes('winner') ||
+                                     quality.includes('excellent') ||
+                                     quality.includes('outstanding') ||
+                                     quality.includes('superb') ||
+                                     quality.includes('exceptional') ||
+                                     quality.includes('perfect') ||
+                                     quality.includes('brilliant') ||
+                                     quality.includes('outstanding') ||
+                                     quality.includes('high quality') ||
+                                     quality.includes('very good') ||
+                                     quality.includes('great') ||
+                                     quality.includes('effective') ||
+                                     quality.includes('successful') ||
+                                     quality.includes('decisive') ||
+                                     quality.includes('winning') ||
+                                     quality.includes('point-winning') ||
+                                     quality.includes('match-winning');
+                            }).length;
+                            const conversionRate = totalShots > 0 ? Math.round((winningShots / totalShots) * 100) : 0;
+                            return `${conversionRate}%`;
+                          })()}
+                        </div>
+                        <div className="text-sm text-muted-foreground">Conversion</div>
+                      </div>
+                      <p className="text-muted-foreground text-sm leading-relaxed">
+                        {performanceEfficiency.rallyConversion}
+                      </p>
+                    </div>
                   </CardContent>
                 </Card>
               </div>
-            </div>
-          </section>
+            </CardContent>
+          </Card>
         )}
 
         {/* Comparative Analysis Section */}

@@ -81,18 +81,26 @@ After the shot-by-shot analysis, provide these additional comprehensive sections
 • Overall rally competitiveness and engagement
 • Areas needing improvement
 
-### 2. STATISTICAL ANALYSIS
-**Average Shot Speed:**
-• Calculate and provide the average shuttle speed across all shots with range and variation details
+### 2. PERFORMANCE EFFICIENCY
+**Shot Accuracy Rate:**
+• Calculate percentage of shots that hit their intended target
+• Analyze placement accuracy and targeting effectiveness
+• Identify accuracy patterns and consistency levels
 
-**Shot Distribution:**
-• Provide detailed breakdown of shot types used by both players with percentages and counts
+**Power Efficiency:**
+• Measure average power per successful shot
+• Analyze power-to-accuracy ratio
+• Identify optimal power levels for different shot types
 
-**Court Coverage:**
-• Analyze how well both players covered the court, including movement patterns and positioning effectiveness
+**Error Rate:**
+• Calculate unforced errors vs total shots
+• Analyze error patterns and causes
+• Identify areas with highest error rates
 
-**Rally Length:**
-• Provide context about rally length compared to typical badminton rallies and its implications
+**Rally Conversion:**
+• Track shots that led to winning the point
+• Analyze conversion rate and effectiveness
+• Identify most successful shot sequences
 
 ### 3. COMPARATIVE ANALYSIS
 **Head-to-Head Comparison:**
