@@ -58,16 +58,28 @@ After the shot-by-shot analysis, provide these additional comprehensive sections
 
 ### 1. OVERALL RALLY ANALYSIS
 **Overall Performance Summary:**
-• Provide a high-level assessment of the entire rally, including intensity, shot variety, tactical awareness, and overall quality of play
+• Rally quality rating (1-10) with brief justification
+• Shot variety count and tactical level assessment
+• Overall intensity and player engagement level
+• Key technical strengths and areas for improvement
 
 **Rally Duration:**
-• Estimate the actual duration of the analyzed rally sequence in minutes and seconds
+• Exact duration in minutes and seconds
+• Average time between shots
+• Comparison to typical rally length
+• Impact on player performance
 
 **Match Intensity:**
-• Assess the overall pace and intensity level (Low/Moderate/High/Very High) with specific details about shot speed and player movement
+• Intensity level (Low/Moderate/High/Very High)
+• Average shuttle speed
+• Peak intensity moments
+• Defensive vs offensive shot ratio
 
-**Key Moments:**
-• Identify 3-5 critical moments in the rally that had significant impact, including specific shot numbers and why they were important
+**Rally Quality Assessment:**
+• Technical execution quality rating (1-10)
+• Shot accuracy and placement effectiveness
+• Overall rally competitiveness and engagement
+• Areas needing improvement
 
 ### 2. STATISTICAL ANALYSIS
 **Average Shot Speed:**
