@@ -1,6 +1,7 @@
 // Gemini API Service for Exercise Analysis
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY as string;
-const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent";
+
 
 // Supported video formats
 const ALLOWED_EXTENSIONS = ["mp4", "mov", "avi"];
