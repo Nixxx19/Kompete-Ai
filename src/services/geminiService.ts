@@ -195,7 +195,7 @@ export const analyzeExerciseVideo = async (videoFile: File): Promise<ExerciseAna
     // Convert video to base64
     const base64Video = await fileToBase64(videoFile);
     
-    // Prepare the request payload
+    // Prepare the request payload - using default settings
     const payload = {
       contents: [
         {
@@ -370,4 +370,3 @@ const extractRecommendations = (text: string): string[] => {
   ];
 };
 
-// Note: Mock analysis removed - using only real API data
