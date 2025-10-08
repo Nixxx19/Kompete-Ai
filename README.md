@@ -215,5 +215,5 @@ For live analysis features, ensure your browser has camera access permissions.
 
 ## 🚀 Deployment
 
-This project is deployed on Vercel. You can test the live application by visiting the deployed URL.
+This project is deployed on Vercel. You can test the live application by visiting the deployed URL
 
