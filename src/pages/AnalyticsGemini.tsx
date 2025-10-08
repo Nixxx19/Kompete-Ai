@@ -209,23 +209,6 @@ const AnalyticsGemini = () => {
                       Process
                     </span>
                   </div>
-                  <div className={`w-3 sm:w-4 h-px transition-colors duration-300 ${
-                    analysisResults ? 'bg-green-500/40' : 'bg-border/30'
-                  }`}></div>
-                  <div className="flex items-center gap-3 min-w-fit">
-                    <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300 ${
-                      analysisResults 
-                        ? 'bg-green-500 text-white' 
-                        : 'bg-muted/30 text-muted-foreground'
-                    }`}>
-                      {analysisResults ? '✓' : '3'}
-                    </div>
-                    <span className={`text-sm sm:text-base font-medium whitespace-nowrap transition-colors duration-300 ${
-                      analysisResults ? 'text-green-400' : 'text-muted-foreground'
-                    }`}>
-                      Results
-                    </span>
-                  </div>
                 </div>
 
                 {/* Upload Area */}
