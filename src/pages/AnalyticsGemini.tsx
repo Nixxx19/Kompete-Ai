@@ -177,50 +177,50 @@ const AnalyticsGemini = () => {
                 </div>
 
                 {/* Upload Process Steps */}
-                <div className="flex items-center justify-center gap-1 sm:gap-4 mb-8 px-2 overflow-x-auto">
-                  <div className="flex items-center gap-1 sm:gap-2 min-w-fit">
-                    <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-sm sm:text-base font-bold transition-all duration-500 border-2 ${
+                <div className="flex items-center justify-center gap-3 sm:gap-8 mb-8 px-2 overflow-x-auto">
+                  <div className="flex items-center gap-3 min-w-fit">
+                    <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300 ${
                       uploadedFile 
-                        ? 'bg-green-500 text-white border-green-500 scale-110 shadow-lg shadow-green-500/30' 
-                        : 'bg-primary/20 text-primary border-primary/30'
+                        ? 'bg-green-500 text-white' 
+                        : 'bg-muted/30 text-muted-foreground'
                     }`}>
                       {uploadedFile ? '✓' : '1'}
                     </div>
-                    <span className={`text-sm sm:text-base font-semibold transition-colors duration-300 whitespace-nowrap ${
-                      uploadedFile ? 'text-green-400' : 'text-primary'
+                    <span className={`text-sm sm:text-base font-medium transition-colors duration-300 whitespace-nowrap ${
+                      uploadedFile ? 'text-green-400' : 'text-muted-foreground'
                     }`}>
                       Upload
                     </span>
                   </div>
-                  <div className={`w-4 sm:w-10 h-1 rounded-full transition-colors duration-500 ${
-                    uploadedFile ? 'bg-green-500/60' : 'bg-border/50'
+                  <div className={`w-3 sm:w-4 h-px transition-colors duration-300 ${
+                    uploadedFile ? 'bg-green-500/40' : 'bg-border/30'
                   }`}></div>
-                  <div className="flex items-center gap-1 sm:gap-2 min-w-fit">
-                    <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-sm sm:text-base font-bold border-2 transition-all duration-500 ${
+                  <div className="flex items-center gap-3 min-w-fit">
+                    <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300 ${
                       isAnalyzing 
-                        ? 'bg-orange-500/20 text-orange-400 border-orange-500/30 scale-110 shadow-lg shadow-orange-500/30' 
-                        : 'bg-muted/20 text-muted-foreground border-muted/30'
+                        ? 'bg-orange-500 text-white' 
+                        : 'bg-muted/30 text-muted-foreground'
                     }`}>
                       {isAnalyzing ? '⟳' : '2'}
                     </div>
-                    <span className={`text-sm sm:text-base font-semibold whitespace-nowrap transition-colors duration-300 ${
+                    <span className={`text-sm sm:text-base font-medium whitespace-nowrap transition-colors duration-300 ${
                       isAnalyzing ? 'text-orange-400' : 'text-muted-foreground'
                     }`}>
                       Process
                     </span>
                   </div>
-                  <div className={`w-4 sm:w-10 h-1 rounded-full transition-colors duration-500 ${
-                    analysisResults ? 'bg-green-500/60' : 'bg-border/50'
+                  <div className={`w-3 sm:w-4 h-px transition-colors duration-300 ${
+                    analysisResults ? 'bg-green-500/40' : 'bg-border/30'
                   }`}></div>
-                  <div className="flex items-center gap-1 sm:gap-2 min-w-fit">
-                    <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-sm sm:text-base font-bold border-2 transition-all duration-500 ${
+                  <div className="flex items-center gap-3 min-w-fit">
+                    <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300 ${
                       analysisResults 
-                        ? 'bg-green-500 text-white border-green-500 scale-110 shadow-lg shadow-green-500/30' 
-                        : 'bg-muted/20 text-muted-foreground border-muted/30'
+                        ? 'bg-green-500 text-white' 
+                        : 'bg-muted/30 text-muted-foreground'
                     }`}>
                       {analysisResults ? '✓' : '3'}
                     </div>
-                    <span className={`text-sm sm:text-base font-semibold whitespace-nowrap transition-colors duration-300 ${
+                    <span className={`text-sm sm:text-base font-medium whitespace-nowrap transition-colors duration-300 ${
                       analysisResults ? 'text-green-400' : 'text-muted-foreground'
                     }`}>
                       Results
