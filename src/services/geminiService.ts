@@ -187,9 +187,9 @@ export const analyzeExerciseVideo = async (videoFile: File): Promise<ExerciseAna
       throw new Error("Unsupported file format. Please upload MP4, MOV, or AVI video.");
     }
 
-    // Check file size (20MB limit)
-    if (videoFile.size > 20 * 1024 * 1024) {
-      throw new Error("File too large. Please upload a video under 20MB.");
+    // Check file size (200MB limit)
+    if (videoFile.size > 200 * 1024 * 1024) {
+      throw new Error("File too large. Please upload a video under 200MB.");
     }
 
     // Convert video to base64

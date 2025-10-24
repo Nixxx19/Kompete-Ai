@@ -1513,7 +1513,7 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
                     <div className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-lg p-4 text-center">
-                          <div className="text-2xl font-bold text-blue-300">2:34</div>
+                          <div className="text-2xl font-bold text-blue-300">17 sec</div>
                           <div className="text-sm text-muted-foreground">Duration</div>
                         </div>
                         <div className="bg-gradient-to-r from-green-500/20 to-blue-500/20 rounded-lg p-4 text-center">
