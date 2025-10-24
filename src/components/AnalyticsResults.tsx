@@ -1155,7 +1155,7 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
         <div className="text-center mb-16 animate-fade-in">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
             <Activity className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium text-primary">Gemini AI Analysis</span>
+            <span className="text-sm font-medium text-primary">Kompte AI Analysis</span>
           </div>
           <h2 className="text-4xl font-bold tracking-tight mb-4">
             Exercise Performance <span className="gradient-text">Results</span>
@@ -1229,7 +1229,7 @@ const AnalyticsResults = ({ analysis, onBack, videoFile }: Props) => {
               
               <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl p-6 border border-blue-500/20">
                 <h3 className="text-2xl font-bold text-foreground mb-2">
-                  {totalShotsFromAPI ? `Kompete AI Analysis: ${totalShotsFromAPI} Shots Detected` : `Found ${shots.length} Shot${shots.length !== 1 ? 's' : ''} in Analysis`}
+                  {totalShotsFromAPI ? `Kompte AI Analysis: ${totalShotsFromAPI} Shots Detected` : `Found ${shots.length} Shot${shots.length !== 1 ? 's' : ''} in Analysis`}
                 </h3>
                 <p className="text-muted-foreground">
                   {totalShotsFromAPI && shots.length !== totalShotsFromAPI 
