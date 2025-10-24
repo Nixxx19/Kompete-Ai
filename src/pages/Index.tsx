@@ -219,8 +219,8 @@ const Index = () => {
 
               <div className="grid md:grid-cols-4 gap-8 text-center">
                 {[
-                  { icon: Users,      value: '10K+', label: 'Athletes Trained',   color: 'orange' },
-                  { icon: Activity,   value: '1M+',  label: 'Exercises Analysed', color: 'sky'    },
+                  { icon: Users,      value: '5K+', label: 'Athletes Trained',   color: 'orange' },
+                  { icon: Activity,   value: '1K+',  label: 'Exercises Analysed', color: 'sky'    },
                   { icon: TrendingUp, value: '95%',  label: 'Accuracy Rate',      color: 'green'  },
                   { icon: Trophy,     value: 'Elite',label: 'Performance Level',  color: 'yellow' }
                 ].map((stat, i) => (
