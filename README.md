@@ -3,6 +3,7 @@
 <div align="center">
   <img src="public/favicon1.ico" alt="KOMPTE AI Logo" width="80" height="80">
   
+  
   **AI-Powered Badminton Analysis & Performance Tracking**
   
   [![React](https://img.shields.io/badge/React-18.3.1-blue.svg)](https://reactjs.org/)
@@ -10,6 +11,8 @@
   [![Vite](https://img.shields.io/badge/Vite-5.4.1-646CFF.svg)](https://vitejs.dev/)
   [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4.11-38B2AC.svg)](https://tailwindcss.com/)
 </div>
+
+<img width="1600" height="728" alt="f5d0eee1-2f8b-4b23-a7d3-b264e6d8516a" src="https://github.com/user-attachments/assets/add380f0-2436-429a-9ae6-c7da9448776a" />
 
 ## 🚀 Overview
 
