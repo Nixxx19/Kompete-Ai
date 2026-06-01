@@ -12,7 +12,7 @@
   [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4.11-38B2AC.svg)](https://tailwindcss.com/)
 </div>
 
-<img width="1600" height="728" alt="f5d0eee1-2f8b-4b23-a7d3-b264e6d8516a" src="https://github.com/user-attachments/assets/add380f0-2436-429a-9ae6-c7da9448776a" />
+https://github.com/user-attachments/assets/139f70ce-5a99-4562-9060-8ae21f861627
 
 ## 🚀 Overview
 
