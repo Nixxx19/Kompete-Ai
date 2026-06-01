@@ -21,7 +21,7 @@ KOMPTE AI is a specialized badminton performance analytics platform that leverag
 ## ✨ Features
 
 ### 🎯 Core Capabilities
-- **AI-Powered Badminton Analysis**: Upload badminton videos for detailed shot-by-shot analysis using Google Gemini
+- **AI-Powered Badminton Analysis**: Upload badminton videos for detailed shot-by-shot analysis using AI
 - **Real-Time Performance Tracking**: Live camera analysis with instant feedback
 - **Shot Analysis**: Comprehensive analysis of all badminton shot types
 - **Professional Analytics**: Detailed form analysis, performance metrics, and coaching insights
@@ -56,7 +56,7 @@ KOMPTE AI is a specialized badminton performance analytics platform that leverag
 - **React Query 5.56.2** - Server state management
 
 ### AI & Computer Vision
-- **Google Gemini 1.5 Flash** - Badminton video analysis and shot insights
+- **AI vision model** - video analysis and shot insights
 - **MediaPipe** - Pose detection and player tracking
 
 ### UI Components
@@ -75,8 +75,8 @@ KOMPTE AI is a specialized badminton performance analytics platform that leverag
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/Nixxx19/kompete-Ai-Website.git
-   cd kompete-ai-website
+   git clone https://github.com/Nixxx19/Kompete-Ai.git
+   cd Kompete-Ai
    ```
 
 2. **Install dependencies**
@@ -92,7 +92,7 @@ KOMPTE AI is a specialized badminton performance analytics platform that leverag
 3. **Set up environment variables**
    ```bash
    # Create .env.local file
-   VITE_GEMINI_API_KEY=your_gemini_api_key_here
+   VITE_AI_API_KEY=your_api_key_here
    ```
 
 4. **Start development server**
@@ -189,9 +189,9 @@ kompete-ai-website/
 │   │   ├── Exercise.tsx
 │   │   ├── LiveCamera.tsx
 │   │   ├── Drills.tsx
-│   │   └── AnalyticsGemini.tsx
+│   │   └── Analytics.tsx
 │   ├── services/          # API services
-│   │   └── geminiService.ts
+│   │   └── aiService.ts
 │   ├── hooks/             # Custom React hooks
 │   ├── lib/               # Utility functions
 │   ├── App.tsx            # Main app component
@@ -205,12 +205,12 @@ kompete-ai-website/
 ## 🔧 Configuration
 
 ### API Keys
-The application requires a Google Gemini API key for video analysis:
+The application requires an AI API key for video analysis:
 
-1. Get your API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
+1. Get your API key from your AI provider
 2. Add it to your environment variables:
    ```bash
-   VITE_GEMINI_API_KEY=your_api_key_here
+   VITE_AI_API_KEY=your_api_key_here
    ```
 
 ### Camera Permissions
